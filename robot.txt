@@ -2,10 +2,9 @@
 TODO
 ===========================
 
-make a git repo
-make a folder for orders and other papers
+clean up gmail inbox
 
-clean up table
+make a folder for orders and other papers
 
 make CAD diagram
 
@@ -26,7 +25,7 @@ motor ctlr
 rpi 
 - review gpio intfc voltage requirements, and current
   . 3.3v for gpio pins is required
-  . current - tbd?
+  . current - still review tbd?
 
 ===========================
 CAPABILITIESS
