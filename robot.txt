@@ -2,11 +2,20 @@
 TODO
 ===========================
 
+can the 12v to 5v power connect the 12v Negative to 5v ground
+- break out connector for usb-c power
+- search for another 12v to 5v converter for the 5v components, such as IR sensor and relays
+
+compile i2c pgm on rpi
+
 clean up gmail inbox
 
 make a folder for orders and other papers
 
-make CAD diagram
+make CAD diagram, or a diagram on graph paper
+- and wiring diagram
+
+decide on chasis base material
 
 determine weight of robot
 - battery
@@ -21,11 +30,6 @@ motor ctlr
 - download documents
 - study documents
 - try configurator on Windoes VM
-
-rpi 
-- review gpio intfc voltage requirements, and current
-  . 3.3v for gpio pins is required
-  . current - still review tbd?
 
 ===========================
 CAPABILITIESS
@@ -66,7 +70,7 @@ Suggestion 1: Lowes
   https://www.lowes.com/pd/Actual-1-in-x-14-25-in-x-1-188-ft-Radius-Edge-Pine-Board/1002719518?cm_mmc=shp-_-c-_-prd-_-mlw-_-google-_-lia-_-122-_-edgegluedpanels-_-1002719518-_-0&placeholder=null&ds_rl=1286981&gclid=CjwKCAiAsaOBBhA4EiwAo0_AnHh-cI3123XLjouCwTEbJBOLDhptTX-62ATxDkbnPJHo1X_96dENDxoChCEQAvD_BwE&gclsrc=aw.ds
 
 ===========================
-MECHANICAL
+MECHANICAL / MOTORS
 ===========================
 
 2 motors with quadrature encoders                ORDERED
@@ -125,9 +129,8 @@ Seeed Parts
             OR
      https://www.robotshop.com/en/grove-i2c-hub-6-port.html             ORDERED
 
-
 Sensors, either from Seeed or Polulo
-- accelerometer                                  ORDERED
+- accelerometer from Seeed                       ORDERED
 - temperature / humidity / pressure              ORDERED
      https://www.seeedstudio.com/Grove-Temperature-Humidity-Pressure-and-Gas-Sensor-for-Arduino-BME680.html
 
@@ -147,7 +150,7 @@ Camera (later) mounted on pan servo
 POWER
 ===========================
 
-12V battery                             
+12 V battery                             
   2 lbs  12V 8AH                                   ORDERED
 Charger                                            ORDERED
 Cable                                              ORDERED
@@ -162,7 +165,7 @@ alternate power for rpi...                         MAYBE LATER
 https://vilros.com/products/10-000mah-portable-power-supply-for-raspberry-pi?variant=32002533556318&currency=USD&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&gclid=CjwKCAiAjp6BBhAIEiwAkO9WuvWw6wfrs-4rUlg9dYt_w-F0c-7BhGa9sFONy9GJOnmdizK6hQ9fHhoCH1QQAvD_BwE
 
 ===========================
-SENSORS INFO
+SENSORS INFO SUMMARY
 ===========================
 
 SeeedStudio
@@ -203,14 +206,14 @@ DSD TECH 2 PCS IIC OLED Display 0.91 Inch for Arduino ARM
 
 Pololu
 ------
-Pololu Relay
+Pololu Relay          ORDERED
   2.5V enables
   rpi gpio
      VIL=0.8V means that if the output is Low it will be <= 0.8V.
      VIL=1.3V means that if the output is High it will be >= 1.3V
 straight 0.1" male header for the control connections
 
-Pololu 38 kHz IR Proximity Sensor, Fixed Gain, High Brightness  2 in cart
+Pololu 38 kHz IR Proximity Sensor, Fixed Gain, High Brightness          ORDERED
    boltage divider
    https://www.raspberrypi.org/forums/viewtopic.php?t=209958
 
@@ -223,3 +226,55 @@ xxxxxxx_xxx_seeed
 
 GROVE SENSOR Search
   https://www.seeedstudio.com/category/Sensor-for-Grove-c-24.html?p=5&product_list_stock=3
+
+===========================
+RPI GPIO
+===========================
+
+3.3v for gpio input pins is required, do not exceed
+
+voltage divider
+  https://www.raspberrypi.org/forums/viewtopic.php?t=209958
+  suggests 10K + 20K,  for low frequency signals
+
+The operating voltage of the GPIO pins is 3.3v with a maximum current draw of 16mA. 
+This means that we can safely power one or two LEDs (Light Emitting Diodes) from a 
+single GPIO pin, via a resistor.
+  - https://www.raspberrypi.org/forums/viewtopic.php?t=151871
+  - 16 mA max per pin
+  - 100 mA max total
+
+===========================
+I2C INFO
+===========================
+
+https://www.robot-electronics.co.uk/i2c-tutorial
+
+RPI has 1.8K resistors on i2c lines  (probably)
+  https://www.raspberrypi.org/forums/viewtopic.php?t=7664
+
+===========================
+RPI INSTALL
+===========================
+
+Download OS from
+  https://www.raspberrypi.org/software/operating-systems/
+
+Raspberry Pi OS Lite
+  Release date: January 11th 2021
+  Kernel version: 5.4
+  Size: 438MB
+  Show SHA256 file integrity hash: d49d6fab1b8e533f7efc40416e98ec16019b9c034bc89c59b83d0921c2aefeef
+
+===========================
+MOTOR CTLR
+===========================
+
+https://www.pololu.com/product/1362
+
+User's Guide
+  https://www.pololu.com/docs/0J77          html
+  https://www.pololu.com/docs/pdf/0J77/simple_motor_controller_g2.pdf   pdf
+
+Notes:
+- XXX tbd
