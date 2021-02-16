@@ -114,7 +114,7 @@ int smc_set_target_speed(int fd, uint8_t address, int16_t speed)
 int main()
 {
   // Choose the I2C device.
-  const char * device = "/dev/i2c-3";
+  const char * device = "/dev/i2c-1";
  
   // Set the I2C address of the SMC (the device number).
   const uint8_t address = 13;
