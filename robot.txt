@@ -2,27 +2,13 @@
 TODO
 ===========================
 
+clean up gmail inbox
+
+study motor ctlr, and take notes
+
 can the 12v to 5v power connect the 12v Negative to 5v ground
 - break out connector for usb-c power
 - search for another 12v to 5v converter for the 5v components, such as IR sensor and relays
-
-compile i2c pgm on rpi
-
-clean up gmail inbox
-
-make a folder for orders and other papers
-
-make CAD diagram, or a diagram on graph paper
-- and wiring diagram
-
-decide on chasis base material
-
-determine weight of robot
-- battery
-- motors
-- chassis
-
-download rpi iso image
 
 motor ctlr
 - download software for motor controller
@@ -31,8 +17,17 @@ motor ctlr
 - study documents
 - try configurator on Windoes VM
 
+make a folder for orders and other papers
+
+make CAD diagram, or a diagram on graph paper
+
+determine weight of robot
+- battery
+- motors
+- chassis
+
 ===========================
-CAPABILITIESS
+ROBOT CAPABILITY IDEAS
 ===========================
 
 - motion, and rotation
@@ -50,12 +45,16 @@ CAPABILITIESS
   - proximity
   - others ?
 
+- camera
+  - pan, zoom, cast to TV
+  - voice commands to pan, zoom, and locate object
+
 - extra 
   - leds
   - color organ
 
 ===========================
-CHASIS
+ROBOT CHASIS
 ===========================
 
 Suggestion 1: Lowes
@@ -98,7 +97,7 @@ MECHANICAL / MOTORS
   for up to 10lb robot
 
 ===========================
-ELECTRONICS 
+ELECTRONICS PARTS
 ===========================
 
 2 Raspberry Pi model 4                           ORDERED
@@ -120,34 +119,42 @@ Seeed Parts
            3 i2c
            1 pwm
            1 uart
+
+Grove Cables ordered from Amazon and SeeedStudio
 - grove cables                                   ORDERED
       https://www.seeedstudio.com/Grove-Universal-4-Pin-Buckled-20cm-Cable-5-PCs-pack.html
       also placed an amazon order: for Cables-Grove - 4 Pin Female Jumper 
               To Grove 4 Pin Conversion Cable (5 Pcs Per Pack)
-- i2c expansion board for grove                  ORDERED 1 from amazon and 1 from robotshop
-     https://www.amazon.com/Grove-I2C-Hub-Port-Cable/dp/B07CW54T2S/ref=sr_1_2?dchild=1&keywords=grove+i2c+hub&qid=1613323453&s=electronics&sr=1-2
-            OR
-     https://www.robotshop.com/en/grove-i2c-hub-6-port.html             ORDERED
 
 Sensors, either from Seeed or Polulo
 - accelerometer from Seeed                       ORDERED
 - temperature / humidity / pressure              ORDERED
      https://www.seeedstudio.com/Grove-Temperature-Humidity-Pressure-and-Gas-Sensor-for-Arduino-BME680.html
+- 2 other temperature
+- ADC
+- OLED display
+
+I2C Expansion
+- i2c expansion board for grove                  ORDERED 1 from amazon and 1 from robotshop
+     https://www.amazon.com/Grove-I2C-Hub-Port-Cable/dp/B07CW54T2S/ref=sr_1_2?dchild=1&keywords=grove+i2c+hub&qid=1613323453&s=electronics&sr=1-2
+            OR
+     https://www.robotshop.com/en/grove-i2c-hub-6-port.html             ORDERED
 
 GPIO HAT, saw on Amazon                          ORDERED
    https://www.amazon.com/gp/product/B0876V959B/ref=ox_sc_act_title_4?smid=AJVXCJJFWBFD7&psc=1
 
+GROVE HAT, bought 2nd one on Amazon              ORDERED
+   https://www.amazon.com/gp/product/B07LD8C51J/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&psc=1
+
 Speaker                                          USE WHAT I HAVE
 
-Other controls
-- servo motor
-- relays
-- mosfet
+servo motor                                      LATER
 
-Camera (later) mounted on pan servo
+Camera, mounted on pan servo                     LATER
+  also zoom
 
 ===========================
-POWER
+POWER SUPPLY PARTS
 ===========================
 
 12 V battery                             
@@ -161,12 +168,19 @@ Fuse with siwtch                                   ORDERED
    15W Output, 3A at 5V USB Type-C Power Supply, Waterproof (12V to 5V USB-C Power Converter)
   https://www.amazon.com/gp/product/B086KTGRH1/ref=ox_sc_act_title_1?smid=A3OL48EYOMUID7&psc=1
 
+12v to 5vdc converter                              ORDERED
+  https://www.amazon.com/gp/product/B00J3MHRNO/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&psc=1
+
 alternate power for rpi...                         MAYBE LATER
 https://vilros.com/products/10-000mah-portable-power-supply-for-raspberry-pi?variant=32002533556318&currency=USD&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&gclid=CjwKCAiAjp6BBhAIEiwAkO9WuvWw6wfrs-4rUlg9dYt_w-F0c-7BhGa9sFONy9GJOnmdizK6hQ9fHhoCH1QQAvD_BwE
 
 ===========================
-SENSORS INFO SUMMARY
+SENSORS SUMMARY
 ===========================
+
+SeeedStudio Sensor Search Link
+------------------------------
+  https://www.seeedstudio.com/category/Sensor-for-Grove-c-24.html?p=5&product_list_stock=3
 
 SeeedStudio
 -----------
@@ -204,8 +218,8 @@ DSD TECH 2 PCS IIC OLED Display 0.91 Inch for Arduino ARM
  The main chip is SSD1306; supports DC 3.3V to 5.0V supply. Working Temperature: -30 degrees ~ 70 degree
   https://www.raspberrypi-spy.co.uk/2018/04/i2c-oled-display-module-with-raspberry-pi/
 
-Pololu
-------
+Pololu (relay and sensor)
+-------------------------
 Pololu Relay          ORDERED
   2.5V enables
   rpi gpio
@@ -216,42 +230,6 @@ straight 0.1" male header for the control connections
 Pololu 38 kHz IR Proximity Sensor, Fixed Gain, High Brightness          ORDERED
    boltage divider
    https://www.raspberrypi.org/forums/viewtopic.php?t=209958
-
-===========================
-PASSWORDS and MISC LINKS
-===========================
-
-xxxxxxx_xxx_robotshop
-xxxxxxx_xxx_seeed
-
-GROVE SENSOR Search
-  https://www.seeedstudio.com/category/Sensor-for-Grove-c-24.html?p=5&product_list_stock=3
-
-===========================
-RPI GPIO
-===========================
-
-3.3v for gpio input pins is required, do not exceed
-
-voltage divider
-  https://www.raspberrypi.org/forums/viewtopic.php?t=209958
-  suggests 10K + 20K,  for low frequency signals
-
-The operating voltage of the GPIO pins is 3.3v with a maximum current draw of 16mA. 
-This means that we can safely power one or two LEDs (Light Emitting Diodes) from a 
-single GPIO pin, via a resistor.
-  - https://www.raspberrypi.org/forums/viewtopic.php?t=151871
-  - 16 mA max per pin
-  - 100 mA max total
-
-===========================
-I2C INFO
-===========================
-
-https://www.robot-electronics.co.uk/i2c-tutorial
-
-RPI has 1.8K resistors on i2c lines  (probably)
-  https://www.raspberrypi.org/forums/viewtopic.php?t=7664
 
 ===========================
 RPI INSTALL
@@ -265,6 +243,65 @@ Raspberry Pi OS Lite
   Kernel version: 5.4
   Size: 438MB
   Show SHA256 file integrity hash: d49d6fab1b8e533f7efc40416e98ec16019b9c034bc89c59b83d0921c2aefeef
+
+apt examples
+- apt update
+- apt install apt-file
+- apt-file update
+- apt-file find wiringPi.h
+
+===========================
+RPI - GPIO HEADER
+===========================
+
+Overview of GPIO
+  https://roboticsbackend.com/raspberry-pi-3-pins/#:~:text=The%20Raspberry%20Pi%204%20board,guide%20applies%20to%20both%20versions.
+
+WiringPi
+  http://wiringpi.com/reference/
+
+3.3v for gpio input pins is required, do not exceed
+- can use voltage divider to reduce 5V to 3.3V
+  . https://www.raspberrypi.org/forums/viewtopic.php?t=209958
+  . suggests 10K + 20K,  for low frequency signals
+
+The operating voltage of the GPIO pins is 3.3v with a maximum current draw of 16mA. 
+This means that we can safely power one or two LEDs (Light Emitting Diodes) from a 
+single GPIO pin, via a resistor.
+  - https://www.raspberrypi.org/forums/viewtopic.php?t=151871
+  - 16 mA max per pin
+  - 100 mA max total
+
+5v Power
+  - Physical/Board pin 2 ??
+  - The 5v power pins are connected directly to the Pi's power input and will capably 
+    provide the full current of your mains adaptor, less that used by the Pi itself.
+  - With a decent power supply, such as the official 3A adapter on the Pi 4, you can 
+    expect to pull about 1A to 2A.
+
+===========================
+RPI - I2C
+===========================
+
+Tutorial:
+  https://www.robot-electronics.co.uk/i2c-tutorial
+
+RPI has 1.8K resistors on i2c lines  (probably)
+  https://www.raspberrypi.org/forums/viewtopic.php?t=7664
+
+i2c Broadcom bug
+- https://github.com/raspberrypi/linux/issues/254
+- this bug is from 2013, so I guess it should be fixed by now
+
+Configure I2c on RPI
+- https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c
+- Enable i2c using raspi-config
+- Verify /dev/i2c-* exists
+- add user to i2c group:  
+   sudo usermod -a -G i2c haid
+   logout and back in
+   groups
+- i2cdetect -y 1
 
 ===========================
 MOTOR CTLR
