@@ -465,3 +465,8 @@ stop motor : target_speed=0, observes decel limits, safe_start_violation=true
    0xe0
 
 
+===========================
+QUADRATURE ENCODER
+===========================
+
+https://cdn.sparkfun.com/datasheets/Robotics/How%20to%20use%20a%20quadrature%20encoder.pdf
