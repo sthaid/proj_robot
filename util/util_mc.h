@@ -1,10 +1,18 @@
-// public api
+// defines
+
 #define VAR_ERROR_STATUS  0  //xxx check
+
+// typedefs
+
 typedef struct {
     int fd;
     char device[100];
     pthread_t monitor_thread_id;
 } mc_t;
+
+// prototypes
+
+void mc_init_module(void);
 
 mc_t *mc_new(int id);
 

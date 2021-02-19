@@ -16,6 +16,8 @@
 // defines
 //
 
+#define MAX_MC_LIST 4
+
 //
 // typedefs
 //
@@ -23,6 +25,9 @@
 //
 // variables
 //
+
+static mc_t * mc_list[MAX_MC_LIST];
+static int    max_mc_list;
 
 //
 // prototypes
@@ -50,6 +55,9 @@ int main(int argc, char **argv)
     int error_status;
     int product_id;
     int fw_ver_maj_bcd, fw_ver_min_bcd;
+    char str[200];
+
+    mc_init_module();
 
     mc = mc_new(0);
     if (mc == NULL) {
@@ -67,28 +75,54 @@ int main(int argc, char **argv)
     }
     INFO("product_id = 0x%4.4x fw_ver = %x.%x\n", product_id, fw_ver_maj_bcd, fw_ver_min_bcd);
 
+    while (printf("? "), fgets(str,sizeof(str),stdin) != NULL) {
+        int cnt, value;
+        char cmd;
+
+        #define VALUE_REQUIRED \
+            if (cnt != 2) { \
+                printf("ERROR: value required\n"); \
+                continue; \
+            }
+
+        cnt = sscanf(str, "%c %d", &cmd, &value);
+        if (cnt == 0) {
+            continue;
+        }
+
+        switch (cmd) {
+        case 'f':
+            VALUE_REQUIRED;
+            mc_speed(mc, value);
+            break;
+        case 'r':
+            VALUE_REQUIRED;
+            mc_speed(mc, -value);
+            break;
+        default:
+            printf("ERROR: cmd '%c' invalid\n", cmd);
+            break;
+        }
+    }
+
     return 0;
 }
 #endif
 
-// -----------------  API  -------------------------------------------------
+// -----------------  INIT API  --------------------------------------------
 
-// XXX doc return codes
+void mc_init_module(void)
+{
+    crc_init();
+}
+
+// -----------------  RUN TIME API  ----------------------------------------
 
 mc_t *mc_new(int id)
 {
     int fd, rc, error_status;
     char device[100];
     mc_t *mc;
-
-    static bool first_call = true;
-
-    // init crc table
-    // XXX either prinit the table or have a separate init routine
-    if (first_call) {
-        crc_init();
-        first_call = false;
-    }
 
     // open usb serial device
     sprintf(device, "/dev/ttyACM%d", id);
@@ -106,8 +140,19 @@ mc_t *mc_new(int id)
     rc = mc_get_variable(mc, VAR_ERROR_STATUS, &error_status);
     if (rc < 0) {
         free(mc);
+        close(fd);
         return NULL;
     }
+
+    // add mc to list
+    if (max_mc_list >= MAX_MC_LIST) {
+        free(mc);
+        close(fd);
+        return NULL;
+    }
+    mc_list[max_mc_list] = mc;
+    __sync_synchronize();
+    max_mc_list++;
 
     // create monitor_thread to periodically check status of this mc
     pthread_create(&mc->monitor_thread_id, NULL, monitor_thread, mc);
@@ -116,6 +161,7 @@ mc_t *mc_new(int id)
     return mc;
 }
 
+// return 0 success, -1 failed to enable
 int mc_enable(mc_t *mc)
 {
     unsigned char cmd[1] = { 0x83 };
@@ -129,6 +175,7 @@ int mc_enable(mc_t *mc)
     return mc_status(mc) == 0 ? 0 : -1;
 }
 
+// return -1 could not get error_status, else error_status is returned
 int mc_status(mc_t *mc)
 {
     int error_status;
@@ -140,6 +187,7 @@ int mc_status(mc_t *mc)
     return error_status;
 }
 
+// return 0 if cmd was successfully issued, else return -1
 int mc_speed(mc_t *mc, int speed)
 {
     if (speed >= 0) {
@@ -150,21 +198,26 @@ int mc_speed(mc_t *mc, int speed)
     }
 }
 
+// return 0 if cmd was successfully issued, else return -1
 int mc_brake(mc_t *mc)
 {
     return issue_cmd(mc, (unsigned char []){0x92, 0x20}, 2, NULL, 0);
 }
 
+// return 0 if cmd was successfully issued, else return -1
 int mc_coast(mc_t *mc)
 {
     return issue_cmd(mc, (unsigned char []){0x92, 0x00}, 2, NULL, 0);
 }
 
+// return 0 if cmd was successfully issued, else return -1
 int mc_stop(mc_t *mc)
 {
     return issue_cmd(mc, (unsigned char []){0xe0}, 1, NULL, 0);
 }
 
+// return 0 if cmd was successfully issued, else return -1;
+// when 0 is returned the variable's value has been set
 int mc_get_variable(mc_t *mc, int id, int *value)
 {
     unsigned char cmd[1] = { 0xa1 };
@@ -177,7 +230,7 @@ int mc_get_variable(mc_t *mc, int id, int *value)
 
     *value = resp[0] + 256 * resp[1];
 
-    value_is_signed = false;  // xxx tbd
+    value_is_signed = false;  // XXX tbd
     if (value_is_signed && *value > 32767 ) {
         *value -= 65536;
     }
@@ -185,6 +238,7 @@ int mc_get_variable(mc_t *mc, int id, int *value)
     return 0;
 }
 
+// return 0 if motor limit was set, else return -1
 int mc_set_motor_limit(mc_t *mc, int id, int value)
 {
     unsigned char resp[1];
@@ -196,14 +250,17 @@ int mc_set_motor_limit(mc_t *mc, int id, int value)
     return resp[0] == 0 ? 0 : -1;
 }
 
+// return 0 if cmd was successfully issued, else return -1
 int mc_set_current_limit(mc_t *mc, int milli_amps)
 {
     int limit;
     int current_scale_cal  = 8057;  // default
-    int current_offset_cal = 993;   // default    XXX, but won't be using default
+    int current_offset_cal = 993;   // default
     unsigned char resp[1];
 
+    // XXX probably won't be using the default cal values
     // XXX need to verify this
+
     limit = (milli_amps * 3200 * 2 / current_scale_cal + current_offset_cal) * 3200 / 65536;
 
     return issue_cmd(mc, 
@@ -211,6 +268,8 @@ int mc_set_current_limit(mc_t *mc, int milli_amps)
                      resp, sizeof(resp));
 }
 
+// return 0 if cmd was successfully issued, else return -1;
+// when 0 is returned the product_id and fw_ver values have been set
 int mc_get_fw_ver(mc_t *mc, int *product_id, int *fw_ver_maj_bcd, int *fw_ver_min_bcd)
 {
     unsigned char resp[4];
@@ -231,17 +290,24 @@ int mc_get_fw_ver(mc_t *mc, int *product_id, int *fw_ver_maj_bcd, int *fw_ver_mi
 static void *monitor_thread(void *cx)
 {
     mc_t *mc = (mc_t *)cx;
-    int rc, error_status;
+    int i, error_status, error_status_last=1;
 
     while (true) {
         // get error status 
-        rc = mc_get_variable(mc, VAR_ERROR_STATUS, &error_status);
-        if (rc < 0) {
-            printf("ERROR: XXX\n");
+        error_status = mc_status(mc);
+
+        // if not okay now, and was okay last time then
+        // stop all motors
+        if (error_status != 0 && error_status_last == 0) {
+            ERROR("stopping all motors becuase %s failed, error_status=0x%x\n", 
+                  mc->device, error_status);
+            for (i = 0; i < max_mc_list; i++) {
+                mc_stop(mc_list[i]);
+            }
         }
 
-        // if all mc were okay last iteration, and are not all okay now
-        // then stop them all
+        // remember last error_status
+        error_status_last = error_status;
 
         // sleep for 1 sec
         sleep(1);
@@ -430,141 +496,3 @@ static unsigned char crc(unsigned char message[], unsigned char length)
 
     return crc;
 }
- 
-
-
-
-
-#if 0
-// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-// xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
-int main()
-{
-  unsigned char message[3] = {0x83, 0x01, 0x00};
-  int i, j;
- 
-  buildCRCTable();
-  message[2] = getCRC(message, 2);
- 
-  for (i = 0; i < sizeof(message); i++)
-  {
-    for (j = 0; j < 8; j++)
-      printf("%d", (message[i] >> j) % 2);
-    printf(" ");
-  }
-  printf("\n");
-}
-
-int main()
-{
-  // Choose the serial port name.
-  // Linux USB example:  "/dev/ttyACM0"  (see also: /dev/serial/by-id)
-  // macOS USB example:  "/dev/cu.usbmodem001234562"
-  // Cygwin example:     "/dev/ttyS7"
-  const char * device = "/dev/ttyACM0";
- 
-  // Choose the baud rate (bits per second).  This does not matter if you are
-  // connecting to the SMC over USB.  If you are connecting via the TX and RX
-  // lines, this should match the baud rate in the SMC G2's serial settings.
-  uint32_t baud_rate = 9600;
- 
-  int fd = open_serial_port(device, baud_rate);
-  if (fd < 0) { return 1; }
- 
-  int result = smc_exit_safe_start(fd);
-  if (result) { return 1; }
- 
-  uint16_t error_status;
-  result = smc_get_error_status(fd, &error_status);
-  if (result) { return 1; }
-  printf("Error status: 0x%04x\n", error_status);
- 
-  int16_t target_speed;
-  result = smc_get_target_speed(fd, &target_speed);
-  if (result) { return 1; }
-  printf("Target speed is %d.\n", target_speed);
- 
-  int16_t new_speed = (target_speed <= 0) ? 3200 : -3200;
-  printf("Setting target speed to %d.\n", new_speed);
-  result = smc_set_target_speed(fd, new_speed);
-  if (result) { return 1; }
- 
-  close(fd);
-  return 0;
-}
-
-// ------------------------------------------------------------------------
-
-// Reads a variable from the SMC.
-// Returns 0 on success or -1 on failure.
-int smc_get_variable(int fd, uint8_t variable_id, uint16_t * value)
-{
-  uint8_t command[] = { 0xA1, variable_id };
-  int result = write_port(fd, command, sizeof(command));
-  if (result) { return -1; }
-  uint8_t response[2];
-  ssize_t received = read_port(fd, response, sizeof(response));
-  if (received < 0) { return -1; }
-  if (received != 2)
-  {
-    fprintf(stderr, "read timeout: expected 2 bytes, got %zu\n", received);
-    return -1;
-  }
-  *value = response[0] + 256 * response[1];
-  return 0;
-}
- 
-// Gets the target speed (-3200 to 3200).
-// Returns 0 on success, -1 on failure.
-int smc_get_target_speed(int fd, int16_t * value)
-{
-  return smc_get_variable(fd, 20, (uint16_t *)value);
-}
- 
-// Gets a number where each bit represents a different error, and the
-// bit is 1 if the error is currently active.
-// See the user's guide for definitions of the different error bits.
-// Returns 0 on success, -1 on failure.
-int smc_get_error_status(int fd, uint16_t * value)
-{
-  return smc_get_variable(fd, 0, value);
-}
- 
-// Sends the Exit Safe Start command, which is required to drive the motor.
-// Returns 0 on success, -1 on failure.
-int smc_exit_safe_start(int fd)
-{
-  const uint8_t command = 0x83;
-  return write_port(fd, &command, 1);
-}
- 
-// Sets the SMC's target speed (-3200 to 3200).
-// Returns 0 on success, -1 on failure.
-int smc_set_target_speed(int fd, int speed)
-{
-  uint8_t command[3];
- 
-  if (speed < 0)
-  {
-    command[0] = 0x86; // Motor Reverse
-    speed = -speed;
-  }
-  else
-  {
-    command[0] = 0x85; // Motor Forward
-  }
-  command[1] = speed & 0x1F;
-  command[2] = speed >> 5 & 0x7F;
- 
-  return write_port(fd, command, sizeof(command));
-}
-
-// ------------------------------------------------------------------------
-// ------------------------------------------------------------------------
-// ------------------------------------------------------------------------
-
-// ------------------------------------------------------------------------
-#endif
