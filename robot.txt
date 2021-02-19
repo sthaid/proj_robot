@@ -2,22 +2,23 @@
 TODO
 ===========================
 
-clean up gmail inbox
+cleanup this file
 
-study motor ctlr, and take notes
+work on mtrctlr code
+- pololu
+
+motor ctlr
+- try configurator on Windoes VM
+- also try smcg2cmd.exe
+
+write software for
+- mtr_ctlr
+- quad_enc
+- motor
 
 can the 12v to 5v power connect the 12v Negative to 5v ground
 - break out connector for usb-c power
 - search for another 12v to 5v converter for the 5v components, such as IR sensor and relays
-
-motor ctlr
-- download software for motor controller
-- download i2c software
-- download documents
-- study documents
-- try configurator on Windoes VM
-
-make a folder for orders and other papers
 
 make CAD diagram, or a diagram on graph paper
 
@@ -52,6 +53,22 @@ ROBOT CAPABILITY IDEAS
 - extra 
   - leds
   - color organ
+
+===========================
+PARTS SUPPLIERS
+===========================
+
+Pololu
+   https://www.pololu.com
+
+RobotShop
+   https://www.robotshop.com
+
+SeeedStudio
+   https://www.seeedstudio.com
+
+Amazon
+
 
 ===========================
 ROBOT CHASIS
@@ -304,14 +321,146 @@ Configure I2c on RPI
 - i2cdetect -y 1
 
 ===========================
-MOTOR CTLR
+POLOLU SIMPLE MOTOR CONTROLLER
 ===========================
 
 https://www.pololu.com/product/1362
 
 User's Guide
-  https://www.pololu.com/docs/0J77          html
-  https://www.pololu.com/docs/pdf/0J77/simple_motor_controller_g2.pdf   pdf
+  html:  https://www.pololu.com/docs/0J77
+  pdf:   https://www.pololu.com/docs/pdf/0J77/simple_motor_controller_g2.pdf
 
-Notes:
-- XXX tbd
+Configurator runs only on Windows
+   see section:  3.1. Installing Windows drivers and software
+   cmdline tool is:   smcg2cmd.exe
+
+install windoes drivers and software,  sect 3.1
+  The SMC G2’s native USB interface implements Microsoft OS 2.0 Descriptors, 
+  so it will work on Windows 8.1 or later without needing any drivers. 
+  The USB serial ports will work on Windows 10 or later without drivers.
+
+The Simple Motor Control Center G2 is a graphical user interface (GUI) for configuring the
+controller, viewing its status, and controlling it manually. You can find the configuration 
+utility in your Start Menu by searching for it or looking in the Pololu folder.
+
+The Simple Motor Controller G2 Command-line Utility (smcg2cmd) is a command-line utility
+that can do most of what the GUI can do, and more. You can open a Command Prompt and
+type smcg2cmd with no arguments to see a summary of its options.
+
+Tips:
+- Make your motor leads as thick and as short as possible, and 
+- Twist them around each other. 
+- It is also beneficial to do this with your power supply leads.
+- Running GUI ...
+  . As a first step, we recommend that you click “Quick input setup…”
+  . The easiest way to set the “Current offset calibration” setting is to connect power 
+    to VIN, make sure the motor is stopped, and then click the “Measure” button to 
+    measure the offset and automatically change the setting.
+- Brake duration is the time, in milliseconds, that the motor controller will spend 
+  braking the motor (current speed = 0) before allowing the current speed to change 
+  signs. The forward brake duration is the braking time required before switching from 
+  forward to reverse (from positive to negative speeds). The reverse brake duration is 
+  the braking time required before switching from reverse to forward (from
+  negative to positive speeds).
+
+----------------
+--- commands ---
+----------------
+
+exit safe start
+   0x83
+
+motor forward  0x85 speedbyte1  speedbyte2
+  speed is 0 - 3200
+    byte 1  low 5 bits          
+    byte 2  upper 7 bits
+    example: 0 100  is full speed
+
+motor reverse  0x86
+
+motor brake, causes immedeate brake or coast, ignoring deccel limits
+   0x92 0x00   coast
+   0x92 0x20   brake
+
+get variable
+  0xa1  <variable_id>     RESPONSE:   lowbyte, highbyte
+       (see section 6.4)
+
+    value = variable_low_byte + 256 * variable_high_byte
+
+    If the variable type is signed and the above result is greater than 32767, you will need to subtract
+    65536 from the result to obtain the correct, signed value. Alternatively, if it is supported by the
+    language you are using, you can cast the result to a signed 16-bit data type.
+
+    0   error status                        (errors that are currently stopping the motor)
+    1   errors occurred since last cleared  (reading clears)
+    2   serial errors occurred
+    3   limit status                        (conditions limitting the motor ctlr)
+  127   source of last reset
+
+   20  target speed
+   21  current speed
+   22  breake amunt
+   23  input voltage
+   24 temp A
+   25 temp B
+   27 baud rate
+   28,29  uptime low, high    (ms, 65536 ms)
+
+   30 max speed forwared
+   31 max accel forward
+   32 max decel forward
+   33 brake duration forwared (when transitioning from forward to reverse)
+   34 starting speed forward
+
+   36 max speed reverse
+   37 max accel reverse
+   38 max decel reverse
+   39 brake duration reverse (when transitioning from reverse to forward)
+   40 starting speed reverse
+
+   42 current limit  (section 5.2, internal units)
+   43 raw current   (section 5.2, internal units)
+   44 current  mA
+   45 current limitting consecutive count  number of consecutinve 20 ms periods when current limit is active
+   46 current limitting occurence count  number of consecutinve 20 ms periods when current limit is active
+                                         since last cleared
+
+set motor limit
+    0xa2   limitID  byte1  byte2     RESPONSE   response_code_byte
+      (see secton 6.4)
+
+       the first of which (limit byte 1) contains the
+       low seven bits of the value and the second 
+         (limit byte 2) contains the high seven bits.
+
+         4 - max speed forwared   0-3200
+         5 - max accel forward    0-3200 (0=nolimit) = deltaspeed per update period
+         6 - max decel forward    0-3200 (0=nolimit) = deltaspeed per update period
+         7 - brake dur forward    0-16384  units=4ms   (note: get variable units is 1ms)
+         8 - max speed forwared   0-3200
+         9 - max accel forward    0-3200 (0=nolimit) = deltaspeed per update period
+         10- max decel forward    0-3200 (0=nolimit) = deltaspeed per update period
+         11- brake dur forward    0-16384  units=4ms   (note: get variable units is 1ms)
+
+       response code
+         0 - okay
+         1 - unable to set forwared limit
+         2 - unable to set reverse limit
+         3 - unable to set forward and reverse limit
+
+set current limit
+  0x91  byte1  byte2     see section 5.2
+     these bytes are 7 bit values
+
+get firmware version
+   0xc1   respone  bytes 1-4    
+     product-id low byte
+     product-id high byte
+     minor fw version BCD
+     major fw version  BCD
+
+stop motor : target_speed=0, observes decel limits, safe_start_violation=true
+   0xe0
+
+
