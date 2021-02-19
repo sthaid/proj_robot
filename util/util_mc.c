@@ -2,11 +2,12 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <string.h>
+#include <errno.h>
 #include <malloc.h>
 #include <unistd.h>
+#include <pthread.h>
 #include <fcntl.h>
 #include <termios.h>
-#include <pthread.h>
 
 #include "util_mc.h"
 #include "util_misc.h"
@@ -29,10 +30,10 @@
 
 static void *monitor_thread(void *cx);
 
-static int issue_cmd(int fd, unsigned char *cmd, int cmdlen, unsigned char *resp, int resplen);
+static int issue_cmd(mc_t *mc, unsigned char *cmd, int cmdlen, unsigned char *resp, int resplen);
 static int open_serial_port(const char * device, uint32_t baud_rate);
-static int write_port(int fd, const uint8_t * buffer, size_t size);
-static ssize_t read_port(int fd, uint8_t * buffer, size_t size);
+static int write_port(mc_t *mc, const uint8_t * buffer, size_t size);
+static ssize_t read_port(mc_t *mc, uint8_t * buffer, size_t size);
 
 static void crc_init(void);
 static unsigned char crc(unsigned char message[], unsigned char length);
@@ -89,6 +90,7 @@ mc_t *mc_new(int id)
     // allocate and init the mc handle
     mc = malloc(sizeof(mc_t));
     mc->fd = fd;
+    strcpy(mc->device, device);
 
     // get error status, to confirm we can communicate to the ctlr
     rc = mc_get_variable(mc, VAR_ERROR_STATUS, &error_status);
@@ -136,7 +138,7 @@ int mc_get_variable(mc_t *mc, int id, int *value)
     int rc;
     bool value_is_signed;
 
-    rc = issue_cmd(mc->fd, cmd, sizeof(cmd), resp, sizeof(resp));
+    rc = issue_cmd(mc, cmd, sizeof(cmd), resp, sizeof(resp));
     if (rc < 0) {
         return rc;
     }
@@ -192,7 +194,7 @@ static void *monitor_thread(void *cx)
 
 // -----------------  SEND COMMAND  ----------------------------------------
 
-static int issue_cmd(int fd, unsigned char *cmd, int cmdlen, unsigned char *resp, int resplen)
+static int issue_cmd(mc_t *mc, unsigned char *cmd, int cmdlen, unsigned char *resp, int resplen)
 {
     unsigned char lcl_cmd[64], lcl_resp[64];
     int rc;
@@ -200,7 +202,7 @@ static int issue_cmd(int fd, unsigned char *cmd, int cmdlen, unsigned char *resp
     // copy cmd to lcl_cmd, and append crc byte, and send
     memcpy(lcl_cmd, cmd, cmdlen);
     lcl_cmd[cmdlen] = crc(lcl_cmd, cmdlen);
-    rc = write_port(fd, lcl_cmd, cmdlen+1);
+    rc = write_port(mc, lcl_cmd, cmdlen+1);
     if (rc < 0) {
         return rc;
     }
@@ -208,7 +210,7 @@ static int issue_cmd(int fd, unsigned char *cmd, int cmdlen, unsigned char *resp
     // if resplen then read the response, verify the crc, and 
     // copy the lcl_resp to caller's buffer
     if (resplen) {
-        rc = read_port(fd, lcl_resp, resplen+1);
+        rc = read_port(mc, lcl_resp, resplen+1);
         if (rc != resplen+1) {
             return -1;
         }
@@ -236,21 +238,21 @@ static int open_serial_port(const char * device, uint32_t baud_rate)
 
     fd = open(device, O_RDWR | O_NOCTTY);
     if (fd == -1) {
-        perror(device);
+        ERROR("open %s, %s\n", device, strerror(errno));
         return -1;
     }
  
     // Flush away any bytes previously read or written.
     int result = tcflush(fd, TCIOFLUSH);
     if (result) {
-        perror("tcflush failed");  // just a warning, not a fatal error
+        ERROR("tcflush %s, %s\n", device, strerror(errno));
     }
  
     // Get the current configuration of the serial port.
     struct termios options;
     result = tcgetattr(fd, &options);
     if (result) {
-        perror("tcgetattr failed");
+        ERROR("tcgetattr %s, %s\n", device, strerror(errno));
         close(fd);
         return -1;
     }
@@ -284,7 +286,7 @@ static int open_serial_port(const char * device, uint32_t baud_rate)
  
     result = tcsetattr(fd, TCSANOW, &options);
     if (result) {
-        perror("tcsetattr failed");
+        ERROR("tcsetattr %s, %s\n", device, strerror(errno));
         close(fd);
         return -1;
     }
@@ -293,13 +295,13 @@ static int open_serial_port(const char * device, uint32_t baud_rate)
 }
  
 // Writes bytes to the serial port, returning 0 on success and -1 on failure.
-static int write_port(int fd, const uint8_t * buffer, size_t size)
+static int write_port(mc_t *mc, const uint8_t * buffer, size_t size)
 {
     ssize_t result;
 
-    result = write(fd, buffer, size);
+    result = write(mc->fd, buffer, size);
     if (result != (ssize_t)size) {
-        perror("failed to write to port");
+        ERROR("write %s, %s\n", mc->device, strerror(errno));
         return -1;
     }
 
@@ -311,18 +313,18 @@ static int write_port(int fd, const uint8_t * buffer, size_t size)
 // timeout or other error.
 // Returns the number of bytes successfully read into the buffer, or -1 if
 // there was an error reading.
-static ssize_t read_port(int fd, uint8_t * buffer, size_t size)
+static ssize_t read_port(mc_t *mc, uint8_t * buffer, size_t size)
 {
     size_t received = 0;
 
     while (received < size) {
-        ssize_t r = read(fd, buffer + received, size - received);
+        ssize_t r = read(mc->fd, buffer + received, size - received);
         if (r < 0) {
-            perror("failed to read from port");
+            ERROR("read %s, %s\n", mc->device, strerror(errno));
             return -1;
         }
         if (r == 0) {
-            // Timeout
+            ERROR("read timedout %s\n", mc->device);
             break;
         }
         received += r;

@@ -2,6 +2,7 @@
 #define VAR_ERROR_STATUS  0  //xxx check
 typedef struct {
     int fd;
+    char device[100];
     pthread_t monitor_thread_id;
 } mc_t;
 
