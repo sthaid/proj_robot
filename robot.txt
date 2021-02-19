@@ -2,19 +2,17 @@
 TODO
 ===========================
 
-cleanup this file
+experiment with i2c using older rpi
+  run i2cdetect
+  i2c graphics interface code
 
-work on mtrctlr code
-- pololu
+write software for
+- mtr_ctlr
+- quad_encoder
 
 motor ctlr
 - try configurator on Windoes VM
 - also try smcg2cmd.exe
-
-write software for
-- mtr_ctlr
-- quad_enc
-- motor
 
 can the 12v to 5v power connect the 12v Negative to 5v ground
 - break out connector for usb-c power
@@ -69,7 +67,6 @@ SeeedStudio
 
 Amazon
 
-
 ===========================
 ROBOT CHASIS
 ===========================
@@ -84,6 +81,10 @@ Suggestion 1: Lowes
   14.25 inch diameter,  thickness 1 inch
 
   https://www.lowes.com/pd/Actual-1-in-x-14-25-in-x-1-188-ft-Radius-Edge-Pine-Board/1002719518?cm_mmc=shp-_-c-_-prd-_-mlw-_-google-_-lia-_-122-_-edgegluedpanels-_-1002719518-_-0&placeholder=null&ds_rl=1286981&gclid=CjwKCAiAsaOBBhA4EiwAo0_AnHh-cI3123XLjouCwTEbJBOLDhptTX-62ATxDkbnPJHo1X_96dENDxoChCEQAvD_BwE&gclsrc=aw.ds
+
+Suggestion 2:
+  Lightwer Weight than 1" thick wood
+  Triangular shape, or similar
 
 ===========================
 MECHANICAL / MOTORS
