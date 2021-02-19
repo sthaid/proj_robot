@@ -230,7 +230,8 @@ int mc_get_variable(mc_t *mc, int id, int *value)
 
     *value = resp[0] + 256 * resp[1];
 
-    value_is_signed = false;  // XXX tbd
+    value_is_signed = (id == VAR_TARGET_SPEED) ||
+                      (id == VAR_CURRENT_SPEED);
     if (value_is_signed && *value > 32767 ) {
         *value -= 65536;
     }
