@@ -46,7 +46,10 @@ static unsigned char crc(unsigned char message[], unsigned char length);
 int main(int argc, char **argv)
 {
     mc_t *mc;
-    int rc, error_status;
+    int rc;
+    int error_status;
+    int product_id;
+    int fw_ver_maj_bcd, fw_ver_min_bcd;
 
     mc = mc_new(0);
     if (mc == NULL) {
@@ -54,17 +57,23 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    rc = mc_status(mc, &error_status);
+    error_status = mc_status(mc);
+    INFO("error_status 0x%x\n", error_status);
+
+    rc = mc_get_fw_ver(mc, &product_id, &fw_ver_maj_bcd, &fw_ver_min_bcd);
     if (rc < 0) {
-        ERROR("mc_status failed\n");
+        ERROR("mc_get_fw_ver failed\n");
         return 1;
     }
+    INFO("product_id = 0x%4.4x fw_ver = %x.%x\n", product_id, fw_ver_maj_bcd, fw_ver_min_bcd);
 
     return 0;
 }
 #endif
 
 // -----------------  API  -------------------------------------------------
+
+// XXX doc return codes
 
 mc_t *mc_new(int id)
 {
@@ -75,6 +84,7 @@ mc_t *mc_new(int id)
     static bool first_call = true;
 
     // init crc table
+    // XXX either prinit the table or have a separate init routine
     if (first_call) {
         crc_init();
         first_call = false;
@@ -108,39 +118,61 @@ mc_t *mc_new(int id)
 
 int mc_enable(mc_t *mc)
 {
-    return 0;
+    unsigned char cmd[1] = { 0x83 };
+
+    // exit safe start
+    if (issue_cmd(mc, cmd, sizeof(cmd), NULL, 0) < 0) {
+        return -1;
+    }
+
+    // return success if error_status is 0, else failure
+    return mc_status(mc) == 0 ? 0 : -1;
 }
 
-int mc_status(mc_t *mc, int *error_status)
+int mc_status(mc_t *mc)
 {
-    return mc_get_variable(mc, VAR_ERROR_STATUS, error_status);
+    int error_status;
+
+    if (mc_get_variable(mc, VAR_ERROR_STATUS, &error_status) < 0) {
+        return -1;
+    }
+
+    return error_status;
 }
 
-int mc_speed(mc_t *mc)
+int mc_speed(mc_t *mc, int speed)
 {
-    return 0;
+    if (speed >= 0) {
+        return issue_cmd(mc, (unsigned char []){0x85, speed & 0x1f, speed >> 5 & 0x7f}, 3, NULL, 0);
+    } else {
+        speed = -speed;
+        return issue_cmd(mc, (unsigned char []){0x86, speed & 0x1f, speed >> 5 & 0x7f}, 3, NULL, 0);
+    }
 }
 
 int mc_brake(mc_t *mc)
 {
-    return 0;
+    return issue_cmd(mc, (unsigned char []){0x92, 0x20}, 2, NULL, 0);
+}
+
+int mc_coast(mc_t *mc)
+{
+    return issue_cmd(mc, (unsigned char []){0x92, 0x00}, 2, NULL, 0);
 }
 
 int mc_stop(mc_t *mc)
 {
-    return 0;
+    return issue_cmd(mc, (unsigned char []){0xe0}, 1, NULL, 0);
 }
 
 int mc_get_variable(mc_t *mc, int id, int *value)
 {
     unsigned char cmd[1] = { 0xa1 };
     unsigned char resp[2];
-    int rc;
     bool value_is_signed;
 
-    rc = issue_cmd(mc, cmd, sizeof(cmd), resp, sizeof(resp));
-    if (rc < 0) {
-        return rc;
+    if (issue_cmd(mc, cmd, sizeof(cmd), resp, sizeof(resp)) < 0) {
+        return -1;
     }
 
     *value = resp[0] + 256 * resp[1];
@@ -155,16 +187,42 @@ int mc_get_variable(mc_t *mc, int id, int *value)
 
 int mc_set_motor_limit(mc_t *mc, int id, int value)
 {
-    return 0;
+    unsigned char resp[1];
+
+    if (issue_cmd(mc, (unsigned char []){0xa2, value & 0x7f, value >> 7}, 3, resp, sizeof(resp)) < 0) {
+        return -1;
+    }
+
+    return resp[0] == 0 ? 0 : -1;
 }
 
 int mc_set_current_limit(mc_t *mc, int milli_amps)
 {
-    return 0;
+    int limit;
+    int current_scale_cal  = 8057;  // default
+    int current_offset_cal = 993;   // default    XXX, but won't be using default
+    unsigned char resp[1];
+
+    // XXX need to verify this
+    limit = (milli_amps * 3200 * 2 / current_scale_cal + current_offset_cal) * 3200 / 65536;
+
+    return issue_cmd(mc, 
+                     (unsigned char []){0x91, limit & 0x7f, limit >> 7}, 3, 
+                     resp, sizeof(resp));
 }
 
-int mc_get_fw_ver(mc_t *mc, int *product_id, int *fw_version)
+int mc_get_fw_ver(mc_t *mc, int *product_id, int *fw_ver_maj_bcd, int *fw_ver_min_bcd)
 {
+    unsigned char resp[4];
+
+    if (issue_cmd(mc, (unsigned char []){0xc2}, 1, resp, 4) < 0) {
+        return -1;
+    }
+
+    *product_id = resp[0] + 256 * resp[1];
+    *fw_ver_min_bcd = resp[2];
+    *fw_ver_maj_bcd = resp[3];
+
     return 0;
 }
 
