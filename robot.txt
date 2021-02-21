@@ -2,7 +2,51 @@
 TODO
 ===========================
 
-experiment with i2c using older rpi
+write realtime demo pgm
+- study realtime linux considerations   INPROG
+   - write pgm that will sleep for 1000nsec in a loop, and keep track of actual sleeptime
+   - isolcpus, setaffinity, setrt priority
+   - make a timer access .h file
+   - what are the commands for getting at the memory mapped register locations
+   - is their a problem with the rpi cpu clock slowing down or throttling
+   - can real time throttling be eliminated
+
+verify gpio access code against
+- bcm2711 spec
+- wiringi source code
+
+more purchases:
+- buy wire
+  - 18 awg 10 amp  <=== buy
+  - 20 awg  5 amp  <=== buy
+  - 22 3 awg       <== have plenty
+- buy 15 A circuit breaker
+
+dbg
+- make a backup script
+- add i2c capability
+- safe_memcpy
+- don't use memcpy in RW_MMIO
+- funcs, startup should get BCM base address, and use in timer test
+- ndisasm
+
+check on my orders, and check mail
+- seeed
+  - 420017409374869903506330707924   usps in transit
+      small order (respeaker, ...)
+  - 7778602974
+      maybe in NYC today, Feb 20
+- pololu
+  -  938648192621
+  - http://www.fedex.com/Tracking?language=english&cntry_code=us&tracknumbers=938648192621
+  - fed ex, scheduled for Monday Feb 22
+- amazon
+  - Sunday
+      battery charger
+  - Monday
+      battery cables
+
+experiment with i2c 
   run i2cdetect
   i2c graphics interface code
 
@@ -250,78 +294,6 @@ Pololu 38 kHz IR Proximity Sensor, Fixed Gain, High Brightness          ORDERED
    https://www.raspberrypi.org/forums/viewtopic.php?t=209958
 
 ===========================
-RPI INSTALL
-===========================
-
-Download OS from
-  https://www.raspberrypi.org/software/operating-systems/
-
-Raspberry Pi OS Lite
-  Release date: January 11th 2021
-  Kernel version: 5.4
-  Size: 438MB
-  Show SHA256 file integrity hash: d49d6fab1b8e533f7efc40416e98ec16019b9c034bc89c59b83d0921c2aefeef
-
-apt examples
-- apt update
-- apt install apt-file
-- apt-file update
-- apt-file find wiringPi.h
-
-===========================
-RPI - GPIO HEADER
-===========================
-
-Overview of GPIO
-  https://roboticsbackend.com/raspberry-pi-3-pins/#:~:text=The%20Raspberry%20Pi%204%20board,guide%20applies%20to%20both%20versions.
-
-WiringPi
-  http://wiringpi.com/reference/
-
-3.3v for gpio input pins is required, do not exceed
-- can use voltage divider to reduce 5V to 3.3V
-  . https://www.raspberrypi.org/forums/viewtopic.php?t=209958
-  . suggests 10K + 20K,  for low frequency signals
-
-The operating voltage of the GPIO pins is 3.3v with a maximum current draw of 16mA. 
-This means that we can safely power one or two LEDs (Light Emitting Diodes) from a 
-single GPIO pin, via a resistor.
-  - https://www.raspberrypi.org/forums/viewtopic.php?t=151871
-  - 16 mA max per pin
-  - 100 mA max total
-
-5v Power
-  - Physical/Board pin 2 ??
-  - The 5v power pins are connected directly to the Pi's power input and will capably 
-    provide the full current of your mains adaptor, less that used by the Pi itself.
-  - With a decent power supply, such as the official 3A adapter on the Pi 4, you can 
-    expect to pull about 1A to 2A.
-
-===========================
-RPI - I2C
-===========================
-
-Tutorial:
-  https://www.robot-electronics.co.uk/i2c-tutorial
-
-RPI has 1.8K resistors on i2c lines  (probably)
-  https://www.raspberrypi.org/forums/viewtopic.php?t=7664
-
-i2c Broadcom bug
-- https://github.com/raspberrypi/linux/issues/254
-- this bug is from 2013, so I guess it should be fixed by now
-
-Configure I2c on RPI
-- https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c
-- Enable i2c using raspi-config
-- Verify /dev/i2c-* exists
-- add user to i2c group:  
-   sudo usermod -a -G i2c haid
-   logout and back in
-   groups
-- i2cdetect -y 1
-
-===========================
 POLOLU SIMPLE MOTOR CONTROLLER
 ===========================
 
@@ -464,9 +436,306 @@ get firmware version
 stop motor : target_speed=0, observes decel limits, safe_start_violation=true
    0xe0
 
-
 ===========================
 QUADRATURE ENCODER
 ===========================
 
 https://cdn.sparkfun.com/datasheets/Robotics/How%20to%20use%20a%20quadrature%20encoder.pdf
+
+===========================
+GIT TIPS
+===========================
+
+Git Tags
+ - git tag                          : lists available tags
+ - git tag -a v1.0 -m 'version 1.0' : create annotated tag
+ - git tag -a v1.0 9fceb02          : tagging an existing commit
+ - git push origin --tags           : tags are not pushed by default
+ - git checkout -b ver1.0 v1.0      : create a branch at a tag
+ - git show v1.0                    : show the tag and associated commit
+
+How to list tracked files
+ - git ls-tree -r master --name-only
+
+Create a private repo
+- On server system, create bare repository:
+    cd ~/proj/private_git_repos
+    mkdir $name.git
+    cd $name.git
+    git init --bare
+
+- On client, populate the directory and push
+    cd ~/proj
+    mkdir $name
+    cd $name    
+    git init
+    git add *
+    git commit -m "initial commit"
+    git remote add origin haid@home:proj/private_git_repos/$name.git
+    git push -u origin master
+
+===========================
+RPI - INSTALL
+===========================
+
+Download OS 
+- https://www.raspberrypi.org/software/operating-systems/
+- Raspberry Pi OS Lite
+    Release date: January 11th 2021
+    Kernel version: 5.4
+    Size: 438MB
+    Show SHA256 file integrity hash: d49d6fab1b8e533f7efc40416e98ec16019b9c034bc89c59b83d0921c2aefeef
+
+Use dd to copy the .img file to micro-sd card
+
+Run rasp-config to set:
+- system options -> wireless lan
+- system options -> hostname
+- interfaces     -> ssh enable
+- localization   -> TZ America, New York
+
+Reboot, login, 
+- confirm IP address is set on wlan0
+- make the IP address static in router settings
+- add IP address to /etc/hosts on home computer
+    192.168.1.145    robot-ctlr
+    192.168.1.44     robot-intfc
+
+Upgrade:
+- apt update
+- apt upgrade
+- reboot
+
+configure system
+- passwd    # change the passwd of the 'pi' user
+- adduser haid
+- EDITOR=vi visudo
+       haid    ALL=(ALL) NOPASSWD: ALL
+- apt install git vim cscope ctags apt-file libreadline-dev raspberrypi-kernel-headers
+- apt-file update
+
+configure my account
+- on home
+    cd ~/.ssh
+    host=robot-ctlr
+    ssh $host mkdir .ssh
+    scp id_rsa.pub $host:.ssh/authorized_keys
+    scp config id_rsa id_rsa.pub  $host:.ssh
+- on rpi ...
+  * add the following to .bashrc
+        # HAID ADDITIONS
+        ulimit -c unlimited
+        alias bashrc='source ~/.bashrc'
+        alias profile='source ~/.profile'
+        alias ls='ls -l --color=always --group-directories-first --human-readable'
+        alias cscope='/usr/bin/cscope -d'
+        alias cscope_init='rm -f cscope.out tags; /usr/bin/cscope -bR; ctags -R'
+        alias pr='cd ~/proj/proj_robot'
+        alias pdbg='cd ~/proj/proj_dbg'
+        HISTCONTROL=""
+        export EDITOR=vim
+  * .vimrc
+        source /usr/share/vim/vim81/defaults.vim
+        " tabs
+        set expandtab
+        set tabstop=8
+        set softtabstop=4
+        set shiftwidth=4
+        " enable copy and paste out of vim
+        set mouse=r
+        " disable autoinent
+        set nocindent
+        set nosmartindent
+        set noautoindent
+        set indentexpr=
+        filetype indent off
+        filetype plugin indent off
+        " highlight search
+        set hlsearch
+        " disable show next match while entering a search
+        set noincsearch
+  * make git directories
+        mkdir proj
+        cd proj
+        git clone haid@home:proj/private_git_repos/proj_dbg.git
+        git clone git@github.com:sthaid/proj_robot.git
+  * build and install dbg
+  * bin/run_dbg
+        sudo ~/proj/proj_dbg/dbg/dbg -r ~/proj/proj_dbg/dbg/funcs
+  * configure git    
+        git config --global user.name "Steven Haid"
+        git config --global user.email stevenhaid@gmail.com
+        git config -l
+
+===========================
+RPI - GPIO HEADER
+===========================
+
+Overview of GPIO
+  https://roboticsbackend.com/raspberry-pi-3-pins/#:~:text=The%20Raspberry%20Pi%204%20board,guide%20applies%20to%20both%20versions.
+
+WiringPi
+  http://wiringpi.com/reference/
+
+3.3v for gpio input pins is required, do not exceed
+- can use voltage divider to reduce 5V to 3.3V
+  . https://www.raspberrypi.org/forums/viewtopic.php?t=209958
+  . suggests 10K + 20K,  for low frequency signals
+
+The operating voltage of the GPIO pins is 3.3v with a maximum current draw of 16mA. 
+This means that we can safely power one or two LEDs (Light Emitting Diodes) from a 
+single GPIO pin, via a resistor.
+  - https://www.raspberrypi.org/forums/viewtopic.php?t=151871
+  - 16 mA max per pin
+  - 100 mA max total
+
+5v Power
+  - Physical/Board pin 2 ??
+  - The 5v power pins are connected directly to the Pi's power input and will capably 
+    provide the full current of your mains adaptor, less that used by the Pi itself.
+  - With a decent power supply, such as the official 3A adapter on the Pi 4, you can 
+    expect to pull about 1A to 2A.
+
+===========================
+RPI - I2C
+===========================
+
+Tutorial:
+  https://www.robot-electronics.co.uk/i2c-tutorial
+
+RPI has 1.8K resistors on i2c lines  (probably)
+  https://www.raspberrypi.org/forums/viewtopic.php?t=7664
+
+i2c Broadcom bug
+- https://github.com/raspberrypi/linux/issues/254
+- this bug is from 2013, so I guess it should be fixed by now
+
+Configure I2c on RPI
+- https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c
+- Enable i2c using raspi-config
+- Verify /dev/i2c-* exists
+- add user to i2c group:  
+   sudo usermod -a -G i2c haid
+   logout and back in
+   groups
+- i2cdetect -y 1
+
+===========================
+RPI - REAL TIME PERFORMANCE TIPS
+===========================
+
+https://www.raspberrypi.org/forums/viewtopic.php?t=228727
+- refer to code.tgz
+- suggestions:
+   . /boot/cmdline.txt   isolcpus=3
+   . disable turbo mode  ?
+   . set affinity
+   . set real time
+- also may have exmple of timer code
+
+https://www.raspberrypi.org/forums/viewtopic.php?f=29&t=216051&p=1599557&sid=2149ef600151289ddf095fdc3ebd69c5#p1599557
+    int prio = sched_get_priority_max(SCHED_FIFO);
+    struct sched_param param;
+    param.sched_priority = prio;
+    sched_setscheduler(0,SCHED_FIFO,&param);
+
+    // This permits realtime processes to use 100% of a CPU, but on a
+    // RPi that starves the kernel. Without this there are latencies
+    // up to 50 MILLISECONDS.
+    system("echo -1 >/proc/sys/kernel/sched_rt_runtime_us");
+
+    The downside is that this will starve other processes, including 
+    essential kernel threads. If you just do a tight loop toggling 
+    GPIO pins that will be a problem, even on a multi-core RPi 3B+. 
+    But if your loop does a blocking read or write of an SPI or I2C 
+    device, all is well. Calling usleep() also works, but it can have 
+    latencies up to 50 microseconds.
+
+    According to https://www.iot-programmer.com/index.ph ... ?showall=1 
+    the 50 ms latency disappears when having a properly configured 
+    multi-core PI. In that post, however, the priority is set to 1, 
+    instead of sched_get_priority_max(SCHED_FIFO), presumably 99.
+
+https://www.raspberrypi.org/forums/viewtopic.php?t=52393
+  see example1.c,  timer and gpio mapping
+
+https://mindplusplus.wordpress.com/2013/05/21/accessing-the-raspberry-pis-1mhz-timer/
+  mapping the broadcom timer
+
+https://www.raspberrypi.org/forums/viewtopic.php?t=244031
+- gpio memory mapped example code
+- rpi memory layout
+    /proc/device-tree/soc/ranges
+    cat /proc/iomem
+    xxd -ps -c250 /proc/device-tree/soc/ranges
+    bcm_host_get_peripheral_address() functionA
+
+    Internally, all of the peripherals are in a 16mb chunk starting 
+    at 0x7e00_0000 on pi1/pi0, that 16mb block was mapped to 0x2000_0000
+    pi2/pi3, 0x3f00_0000 and pi4 in low-peripherals mode, 0xfe00_0000
+
+    in all cases, you need to map it over, so subtract off the 0x7e..., 
+    then add back in the offset for your specific model
+
+    but beware, the rpi4 has a couple new peripherals below the old 
+    0x7e00_0000 addr, mainly pci-e and gigabit ethernet, but you 
+    shouldnt be touching them if linux is active
+
+https://www.raspberrypi.org/forums/viewtopic.php?t=283456
+- more suggestions on getting base addresses 
+  . dtc -I fs /proc/device-tree | less
+  . dmesg | grep gpio
+  . $ echo /proc/device-tree/soc/gpio@*
+    /proc/device-tree/soc/gpio@7e200000
+    $ hexdump -C /proc/device-tree/soc/gpiomem/reg 
+    00000000  7e 20 00 00 00 00 10 00
+
+find the address of the broadcom 
+        FILE *f = fopen("/proc/cpuinfo","r");
+        char buf[1024];
+        fgets(buf,sizeof(buf),f); // skip first line
+        fgets(buf,sizeof(buf),f); // model name
+        if(strstr(buf,"ARMv6")) {
+                phys = 0x20000000;
+        } else if(strstr(buf,"ARMv7")) {
+                phys = 0x3F000000;
+        } else if(strstr(buf,"ARMv8")) {
+                phys = 0x3F000000;
+        } else {
+                fprintf(stderr,"Unknown CPU type\n");
+                exit(1);
+        }
+
+===========================
+RPI - GENERAL TIPS
+===========================
+
+apt examples
+- apt update   - download package information from all configured sources
+- apt upgrade
+
+- apt install apt-file
+- apt-file update
+- apt-file search <filename> - locates packages(s) that provide filename
+                               (aka apt-file find)
+
+- apt search   - search for a package
+- apt install
+- apt remove
+- apt autoremove - remove packages that are no longer needed as dependencies changed
+
+building kernel modules
+- apt install raspberrypi-kernel-headers
+
+adjusting kernel settings at boot time
+- /boot/config.txt
+- /boot/cmdline.txt
+
+cscope and tags
+- setup
+    rm cscope.out; rm tags
+    /usr/bin/cscope -bR
+    ctags -R
+- running cscope, -d is do not build xref
+    cscope -d
+
