@@ -136,15 +136,11 @@ MECHANICAL / MOTORS
 
 2 motors with quadrature encoders                ORDERED
    - 25D metal gearmotor
-   - Pololu item #: 4842
-     . 25 mm diameter boday
-     . 4 mm diameter gearbox output shaft  'D"
-     . voltage	   no-load performance	stall extrapolation	
-         12 V	    1030 RPM, 300 mA	3.2 kg⋅cm (44 oz⋅in), 5.6 A 
-     . 9.7:1 Metal Gearmotor 25Dx63L mm HP 12V with 48 CPR Encoder
-     . 12 V
-     . 1030 rpm   with no load  at 12V
-     . 44 oz-in  stal torque
+   - Pololu item #: 4843
+   - voltage                    12 V
+   - no-load performance        500 RPM  300 mA
+   - stall extrapolation        6 kg⋅cm (85 oz⋅in), 5.6 A 
+   - encoder: 980  counts per rev
 
 2 motor controllers,  either usb or i2c          ORDERED
    product   https://www.pololu.com/product/1362`0
