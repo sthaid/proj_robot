@@ -731,6 +731,10 @@ find the address of the broadcom
                 exit(1);
         }
 
+verify cpus isolated
+  cat /sys/devices/system/cpu/isolated
+  cat /sys/devices/system/cpu/present
+
 ===========================
 RPI - GENERAL TIPS
 ===========================
