@@ -2,7 +2,51 @@
 TODO
 ===========================
 
+make shopping list, and place order
+
+proj_roc
+- review
+- README.md
+- initial commit
+
+put on rpi hat  
+
+code/test gpio.h
+- review against bcm spec
+- this should also work in the kernel module
+- test pull up, down;  and gpio outputs in user mode code, 
+  use grove cable to breadboard
+
+proj_roc update
+- use ioctl or procfs to enable a test, and disable
+- include gpio.h
+- monitor gpio output on oscilloscope
+
+motor ctlr
+- review setup directions
+- attach to laptop, and test without motor
+- attach to rpi, and test without motor
+- connect motor, and calibrate and test on laptop
+- connect motor, and test on rpi
+
+motor encoder
+- start with user mode pgm
+- add support to roc
+
+i2c devices
+- display
+- temperature humidity sensor
+- inertial measurement
+
+other sensors
+
+relays
+
 buy
+- board (or something) to use as a base
+- mounting hardware, standoffs
+- pin connectors
+- longer grove cables
 - 18 hookup wire      10amp
 - or 20 hookup wire    5amp   (motor is 5.6 amp stall)
 - check that I have 22 wire, and put in a bag
@@ -11,6 +55,8 @@ buy
 - maybe buy 15A circuit breaker
 - do I have good size wood screws for mounting
 - heat sinks
+
+---------------
 
 bring out oscilloscope
 
