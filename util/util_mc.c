@@ -1,3 +1,6 @@
+// XXX todo, 
+// - monitor the current
+
 #include <stdio.h>
 #include <stdint.h>
 #include <stdbool.h>
@@ -75,6 +78,12 @@ int main(int argc, char **argv)
     }
     INFO("product_id = 0x%4.4x fw_ver = %x.%x\n", product_id, fw_ver_maj_bcd, fw_ver_min_bcd);
 
+    rc = mc_enable(mc);
+    if (rc < 0) {
+        ERROR("mc_enable failed\n");
+        return 1;
+    }
+
     while (printf("? "), fgets(str,sizeof(str),stdin) != NULL) {
         int cnt, value;
         char cmd;
@@ -99,6 +108,51 @@ int main(int argc, char **argv)
             VALUE_REQUIRED;
             mc_speed(mc, -value);
             break;
+        case 'x': {
+            int current_speed, target_speed;
+
+            target_speed = -3200;
+            printf("XXX TARGET_SPEED %d\n", target_speed);
+            mc_speed(mc, target_speed);
+            do {
+                rc = mc_get_variable(mc, VAR_CURRENT_SPEED, &current_speed);
+                if (rc < 0) {
+                    ERROR("get current speed failed\n");
+                    return 1;
+                }
+                INFO("current_speed = %d\n", current_speed);
+                usleep(10000);
+            } while (current_speed != target_speed);
+            sleep(5);
+
+            target_speed = +3200;
+            printf("XXX TARGET_SPEED %d\n", target_speed);
+            mc_speed(mc, target_speed);
+            do {
+                rc = mc_get_variable(mc, VAR_CURRENT_SPEED, &current_speed);
+                if (rc < 0) {
+                    ERROR("get current speed failed\n");
+                    return 1;
+                }
+                INFO("current_speed = %d\n", current_speed);
+                usleep(10000);
+            } while (current_speed != target_speed);
+            sleep(5);
+
+            target_speed = 0;
+            printf("XXX TARGET_SPEED %d\n", target_speed);
+            mc_speed(mc, target_speed);
+            do {
+                rc = mc_get_variable(mc, VAR_CURRENT_SPEED, &current_speed);
+                if (rc < 0) {
+                    ERROR("get current speed failed\n");
+                    return 1;
+                }
+                INFO("current_speed = %d\n", current_speed);
+                usleep(10000);
+            } while (current_speed != target_speed);
+
+            break; }
         default:
             printf("ERROR: cmd '%c' invalid\n", cmd);
             break;
@@ -125,8 +179,10 @@ mc_t *mc_new(int id)
     mc_t *mc;
 
     // open usb serial device
+    // note: baud rate doesn't matter because we are connecting to the
+    //       SMC over USB
     sprintf(device, "/dev/ttyACM%d", id);
-    fd = open_serial_port(device, 115200);
+    fd = open_serial_port(device, 9600);
     if (fd < 0) {
         return NULL;
     }
@@ -220,7 +276,7 @@ int mc_stop(mc_t *mc)
 // when 0 is returned the variable's value has been set
 int mc_get_variable(mc_t *mc, int id, int *value)
 {
-    unsigned char cmd[1] = { 0xa1 };
+    unsigned char cmd[2] = { 0xa1, id };
     unsigned char resp[2];
     bool value_is_signed;
 
@@ -252,6 +308,7 @@ int mc_set_motor_limit(mc_t *mc, int id, int value)
 }
 
 // return 0 if cmd was successfully issued, else return -1
+// XXX this may not be needed
 int mc_set_current_limit(mc_t *mc, int milli_amps)
 {
     int limit;
