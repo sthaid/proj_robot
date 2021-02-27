@@ -814,3 +814,36 @@ cscope and tags
 - running cscope, -d is do not build xref
     cscope -d
 
+===========================
+MOTOR SETUP
+===========================
+
+Wires
+-----
+- Red, Black    : Power
+- Green         : Encoder Gnd
+- Blue          : Encoder Vcc 3.5 - 20 V
+- Yellow, White : Encoder Output      THESE WILL PROBABLY NEED A VOLTAGE DIVIDER
+
+Settings
+--------
+
+Input 
+- Enable CRC commands
+- Enable CRC responses
+
+Motor
+- Max Speed    :  3200
+- Start Speed  :  0
+- Max Accel    :  10       = 0 to full speed in 320 ms
+- Max Deccel   :  10
+- Brake Dur    :  1000  ms = 1sec
+
+- Current      :  5.5
+- Measure Current Offset Cal with Motor Voltage Off
+
+Advanced
+- Low Vin Shutoff    9.5
+- Low Vin Startup   10.5
+- High Vin Shutoff  15
+- Learn with Vin set to approx 12V
