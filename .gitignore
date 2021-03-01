@@ -1,2 +1,15 @@
 *.o
-robot
+*.cmd
+
+robot/robot
+
+tests/gpio/gpio
+
+tests/realtime/module/Module.symvers
+tests/realtime/module/gpiotest_module.ko
+tests/realtime/module/gpiotest_module.mod
+tests/realtime/module/gpiotest_module.mod.c
+tests/realtime/module/modules.order
+
+tests/realtime/user_mode/gpiotest_prog
+

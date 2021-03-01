@@ -1,24 +1,13 @@
-TARGETS = robot 
+SUBDIRS = robot \
+          tests/realtime/module \
+          tests/realtime/user_mode \
+          tests/gpio
+  
+.PHONY: build clean
 
-CC = gcc
-CFLAGS = -Wall -g -O2 -Iutil
-
-SRC_ROBOT = robot.c \
-            util/util_mc.c \
-            util/util_misc.c 
-
-#
-# build rules
-#
-
-all: $(TARGETS)
-
-robot: $(SRC_ROBOT:.c=.o)
-	$(CC) -o $@ $(SRC_ROBOT:.c=.o) -lpthread
-
-#
-# clean rule
-#
+build:
+	for d in $(SUBDIRS) ; do echo; make -C $$d || exit 1; done
 
 clean:
-	rm -f $(TARGETS) *.o util/*.o
+	for d in $(SUBDIRS) ; do echo; make -C $$d clean || exit 1; done
+
