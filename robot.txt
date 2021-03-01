@@ -2,7 +2,47 @@
 TODO
 ===========================
 
-make shopping list, and place order
+write gpio pgm, and test with real time output to gpio on scope
+
+check on resistors for voltage divider
+
+review video on the connector pin crimping
+
+22 awg jumper cables, dupont    ORDERED
+20 awg hookup wire, solid       ORDERED
+small terminal blocks, various sizes        ORDERED  x2
+- includes spade connectors, various size
+heat shrink air                       ORDERED
+
+more to buy:
+- mounting board,  3/8" thick chopping board
+- mounting hardware for rpi and sensors, standoffs and screws
+- dupont? connector pins and crimper, male and female
+
+Notes:
+- 24       2 amp
+  22       3 amp
+  20 awg   5 amp
+  18       10
+  14       15
+- pitch
+  2.54 mm  rpi hdr
+  2.00     grove
+
+-------------------
+-------------------
+-------------------
+
+
+write encoder test pgm
+
+use larger gauge wires for 5 V power
+
+draw diagram of robot ground floowr,  allow space to mount 2nd floow
+
+xxxxxxxxxxxx
+
+send proj_roc to rpi list
 
 proj_roc
 - review
@@ -41,20 +81,6 @@ i2c devices
 other sensors
 
 relays
-
-buy
-- board (or something) to use as a base
-- mounting hardware, standoffs
-- pin connectors
-- longer grove cables
-- 18 hookup wire      10amp
-- or 20 hookup wire    5amp   (motor is 5.6 amp stall)
-- check that I have 22 wire, and put in a bag
-- another 6 connector strip, for ground on top
-- mouting hardware for sensor and ctlr and rpi boards
-- maybe buy 15A circuit breaker
-- do I have good size wood screws for mounting
-- heat sinks
 
 ---------------
 
