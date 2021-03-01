@@ -839,7 +839,7 @@ Motor
 - Max Deccel   :  10
 - Brake Dur    :  1000  ms = 1sec
 
-- Current      :  5.5
+- Current      :  5.0
 - Measure Current Offset Cal with Motor Voltage Off
 
 Advanced
