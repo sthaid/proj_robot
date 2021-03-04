@@ -1,6 +1,8 @@
 #ifndef __UTIL_MC_H__
 #define __UTIL_MC_H__
 
+#include <pthread.h>
+
 //
 // defines: variable identifiers
 //

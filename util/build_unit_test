@@ -1,5 +1,0 @@
-#!/bin/bash
-
-set -x
-
-gcc -o util_mc -Wall -g -O2 -pthread -DUNIT_TEST util_mc.c util_misc.c
