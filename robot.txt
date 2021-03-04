@@ -2,89 +2,48 @@
 TODO
 ===========================
 
-write gpio pgm, and test with real time output to gpio on scope
+organize bookmarks for sensors
+  - move i2c bookmark to sensors
 
-check on resistors for voltage divider
+mc unit test should be built in the tests directory
+- motor should shutdown when pgm exits
 
-review video on the connector pin crimping
+make a util_timer.h, similar to util_gpio.h
+- this is tested in the tests/realtime
 
-22 awg jumper cables, dupont    ORDERED
-20 awg hookup wire, solid       ORDERED
-small terminal blocks, various sizes        ORDERED  x2
-- includes spade connectors, various size
-heat shrink air                       ORDERED
+i2c devices (C language code)
+- grove hat A/D converter 
+- graphics display
+- grove temperature humidity sensor
+- grove inertial measurement
 
-more to buy:
+other sensors (non-i2c)
+- proximity
+- relays
+
+Sensors DONE:
+- MCP9808 simple temperature sensor 
+
+draw diagram of robot first level
+  leave room for 2nd level
+
+more to buy
 - mounting board,  3/8" thick chopping board
 - mounting hardware for rpi and sensors, standoffs and screws
 - dupont? connector pins and crimper, male and female
 
-Notes:
-- 24       2 amp
-  22       3 amp
-  20 awg   5 amp
-  18       10
-  14       15
-- pitch
-  2.54 mm  rpi hdr
-  2.00     grove
+encoders
+- build voltage divider for encoders
+- write encoder test pgm,  and util_encoder.h,  start doing this in user mode, then maybe use roc
+- motor encoder
+   - start with user mode pgm
+   - add support to roc
 
--------------------
--------------------
--------------------
+review video on the connector pin crimping
 
-
-write encoder test pgm
-
-use larger gauge wires for 5 V power
-
-draw diagram of robot ground floowr,  allow space to mount 2nd floow
-
-xxxxxxxxxxxx
-
-send proj_roc to rpi list
-
-proj_roc
-- review
-- README.md
-- initial commit
-
-put on rpi hat  
-
-code/test gpio.h
-- review against bcm spec
-- this should also work in the kernel module
-- test pull up, down;  and gpio outputs in user mode code, 
-  use grove cable to breadboard
-
-proj_roc update
-- use ioctl or procfs to enable a test, and disable
-- include gpio.h
-- monitor gpio output on oscilloscope
-
-motor ctlr
-- review setup directions
-- attach to laptop, and test without motor
-- attach to rpi, and test without motor
-- connect motor, and calibrate and test on laptop
-- connect motor, and test on rpi
-
-motor encoder
-- start with user mode pgm
-- add support to roc
-
-i2c devices
-- display
-- temperature humidity sensor
-- inertial measurement
-
-other sensors
-
-relays
-
----------------
-
-bring out oscilloscope
+------------------- ------------------- -------------------
+------------------- ------------------- -------------------
+------------------- ------------------- -------------------
 
 plan what I'll need for hooking up the motors for initial testing
 - use battery setup described below
@@ -97,11 +56,6 @@ plan what I'll need for hooking up the motors for initial testing
 
 plan and buy parts for power distribution
 - mount them on a small board, leave room for motor ctlrs too
-- NOTES
-    - 20 awg   5 amp
-      18       10
-      14       15
-    - my battery cable is 12 gauge
 - num 12v circuits
   2 motors
   2 rpis
@@ -112,60 +66,13 @@ plan and buy parts for power distribution
   i2c displays ?
   relays
 
-realtime
-- alloc memory at 1M
-- remove 1 cpu
-- module will start the removed cpu running code in this region
-- TODO - download linux kernel src, and build and install
-- before removing the 1 cpu, test this out with the module just
-  calling into the region
-
-write realtime demo pgm
-- cleanup and checkin this
-- study realtime linux considerations   INPROG
-   - write pgm that will sleep for 1000nsec in a loop, and keep track of actual sleeptime
-   - isolcpus, setaffinity, setrt priority
-   - make a timer access .h file
-   - what are the commands for getting at the memory mapped register locations
-   - is their a problem with the rpi cpu clock slowing down or throttling
-   - can real time throttling be eliminated
-
-verify gpio access code against
-- bcm2711 spec
-- wiringi source code
-
 dbg
 - make a backup script
-- add i2c capability
 - safe_memcpy
 - don't use memcpy in RW_MMIO
 - funcs, startup should get BCM base address, and use in timer test
-- ndisasm
 
-check on my orders, and check mail
-- seeed
-  - 420017409374869903506330707924   usps in transit
-      small order (respeaker, ...)
-
-experiment with i2c 
-  run i2cdetect
-  i2c graphics interface code
-
-write software for
-- mtr_ctlr
-- quad_encoder
-
-motor ctlr
-- try configurator on Windoes VM
-- also try smcg2cmd.exe
-
-can the 12v to 5v power connect the 12v Negative to 5v ground
-- break out connector for usb-c power
-- search for another 12v to 5v converter for the 5v components, such as IR sensor and relays
-
-make CAD diagram, or a diagram on graph paper
-
-determine weight of robot
+estimate weight of robot
 - battery
 - motors
 - chassis
@@ -332,6 +239,21 @@ Fuse with siwtch                                   ORDERED
 
 alternate power for rpi...                         MAYBE LATER
 https://vilros.com/products/10-000mah-portable-power-supply-for-raspberry-pi?variant=32002533556318&currency=USD&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&gclid=CjwKCAiAjp6BBhAIEiwAkO9WuvWw6wfrs-4rUlg9dYt_w-F0c-7BhGa9sFONy9GJOnmdizK6hQ9fHhoCH1QQAvD_BwE
+
+===========================
+WIRING
+===========================
+
+Ampacity
+  24 AWG   2 amp
+  22       3 amp
+  20       5 amp
+  18       10
+  14       15
+
+Connector Pitch
+  2.54 mm  rpi hdr, and most others, except
+  2.00 mm  grove connector
 
 ===========================
 SENSORS SUMMARY
@@ -608,7 +530,7 @@ configure system
 - adduser haid
 - EDITOR=vi visudo
        haid    ALL=(ALL) NOPASSWD: ALL
-- apt install git vim cscope ctags apt-file libreadline-dev raspberrypi-kernel-headers
+- apt install git vim cscope ctags apt-file libreadline-dev tkcvs raspberrypi-kernel-headers
 - apt-file update
 
 configure my account
@@ -631,6 +553,7 @@ configure my account
         alias pdbg='cd ~/proj/proj_dbg'
         HISTCONTROL=""
         export EDITOR=vim
+        export GIT_EXTERNAL_DIFF=~/bin/git_external_diff
   * .vimrc
         source /usr/share/vim/vim81/defaults.vim
         " tabs
@@ -658,14 +581,25 @@ configure my account
         git clone git@github.com:sthaid/proj_robot.git
   * build and install dbg
   * bin/run_dbg
+        #!/bin/bash
         sudo ~/proj/proj_dbg/dbg/dbg -r ~/proj/proj_dbg/dbg/funcs
+  * bin/spellcheck
+        #!/bin/bash
+        if [ $# -eq 0 ]; then
+          echo "error filename expected"
+          exit
+        fi
+        hunspell -d /en_US -l $1 | sort --unique
+  * bin/git_external_diff 
+        #!/bin/bash
+        tkdiff $2 $PWD/$5 > /dev/null | cat
   * configure git    
         git config --global user.name "Steven Haid"
         git config --global user.email stevenhaid@gmail.com
         git config -l
 
 ===========================
-RPI - GPIO HEADER
+RPI - GPIO
 ===========================
 
 Overview of GPIO
@@ -687,7 +621,6 @@ single GPIO pin, via a resistor.
   - 100 mA max total
 
 5v Power
-  - Physical/Board pin 2 ??
   - The 5v power pins are connected directly to the Pi's power input and will capably 
     provide the full current of your mains adaptor, less that used by the Pi itself.
   - With a decent power supply, such as the official 3A adapter on the Pi 4, you can 
@@ -697,25 +630,82 @@ single GPIO pin, via a resistor.
 RPI - I2C
 ===========================
 
-Tutorial:
+References:
+  https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c
   https://www.robot-electronics.co.uk/i2c-tutorial
-
-RPI has 1.8K resistors on i2c lines  (probably)
-  https://www.raspberrypi.org/forums/viewtopic.php?t=7664
-
-i2c Broadcom bug
-- https://github.com/raspberrypi/linux/issues/254
-- this bug is from 2013, so I guess it should be fixed by now
+  https://www.kernel.org/doc/Documentation/i2c/dev-interface
+  https://docs.huihoo.com/linux/kernel/2.6.26/kernel-api/re1210.html
 
 Configure I2c on RPI
-- https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c
+- References
+  - https://learn.adafruit.com/adafruits-raspberry-pi-lesson-4-gpio-setup/configuring-i2c
+- sudo apt install i2c-tools
 - Enable i2c using raspi-config
 - Verify /dev/i2c-* exists
 - add user to i2c group:  
-   sudo usermod -a -G i2c haid
+   sudo usermod -aG i2c haid
    logout and back in
    groups
 - i2cdetect -y 1
+
+Misc:
+- Genral Info:
+  - PEC = Packet Error Checking; this is for SMBUS, not available on I2C Bus
+  - SMBUS is a derivative of I2C bus
+- RPI has 1.8K resistors on i2c lines  (probably)
+  - https://www.raspberrypi.org/forums/viewtopic.php?t=7664
+- i2c Broadcom bug (probably fixed by now)
+  - https://github.com/raspberrypi/linux/issues/254
+  - this bug is from 2013, so I guess it should be fixed by now
+
+i2cdetect
+- i2cdetect -l    # list i2c buses
+- i2cdetect -y 1  # scan bus 1
+- i2cdetect -F 1  # displays implemented functionalities
+    Functionalities implemented by /dev/i2c-1:
+    I2C                              yes
+         ....
+    I2C Block Write                  yes
+    I2C Block Read                   yes
+- can cause confused i2c bus or data loss
+
+i2cget / i2cset : read and write i2c registers
+- be careful, dangerous, can cause damage
+- i2cget  bus  chip  data-addr  [mode]
+  . mode = b   byte
+           w   word
+           c   write byte/read byte
+           default is byte
+- i2cset  bus  chip  data-addr [value] [mode]
+  . if value is ommitted a short write is performed which sets an internal 
+       pointer to the target location, but doesn't write to that location
+  . mode = b, w, s, or i
+      b = byte
+      w = 16 bi word
+      s = SMBus block write 
+      i = I2C block write
+      default is bte mode without PEC
+
+SeeedStudio Grove Demo Code
+- Reference
+  . https://wiki.seeedstudio.com/Grove_Base_Hat_for_Raspberry_Pi/
+  . search for Resources seeed Grove.py Library
+- wget https://github.com/Seeed-Studio/grove.py/archive/master.zip
+- unzip master.zip
+- rm master.zip
+- cd grove.py-master
+- sudo apt install python3-pip
+- ./install.sh
+- cd grove
+- python3 ./adc_8chan_12bit.py
+
+Temperature sensor MCP9808
+- https://www.seeedstudio.com/Grove-I2C-High-Accuracy-Temperature-Sensor-MCP9808.html
+     5v or 3.3v
+     0x18 to 0x1f   (default ix 0x18)
+- wiki: https://wiki.seeedstudio.com/Grove-I2C_High_Accuracy_Temperature_Sensor-MCP9808/
+- https://github.com/Seeed-Studio/Grove_Temperature_sensor_MCP9808
+- https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf
 
 ===========================
 RPI - REAL TIME PERFORMANCE TIPS
@@ -853,7 +843,6 @@ Wires
 
 Settings
 --------
-
 Input 
 - Enable CRC commands
 - Enable CRC responses
