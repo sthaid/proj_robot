@@ -191,7 +191,7 @@ void status(void)
         } else if (fsel == 1) {
             printf(" OUT");
         } else {
-            printf("ALT%c",
+            printf("   %c",
                    (fsel == 4 ? '0' :
                     fsel == 5 ? '1' :
                     fsel == 6 ? '2' :

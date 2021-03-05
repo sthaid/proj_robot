@@ -13,8 +13,16 @@
 // - groups           # verify you are in the i2c group
 // - i2cdetect -y 1   # scan the i2c bus for your devices
 //
-// MCP9808 Temperature Sensor Documentation, Section 5.1 Registers, Page 16
+// MCP9808
 // - https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf
+//      (Section 5.1 Registers, Page 16)
+// - https://www.seeedstudio.com/Grove-I2C-High-Accuracy-Temperature-Sensor-MCP9808.html
+// - https://wiki.seeedstudio.com/Grove-I2C_High_Accuracy_Temperature_Sensor-MCP9808/
+// - https://github.com/Seeed-Studio/Grove_Temperature_sensor_MCP9808
+//
+// I2C
+//   5v or 3.3v
+//   0x18 to 0x1f   (default ix 0x18)
 
 #include <stdio.h>
 #include <stdlib.h>

@@ -26,7 +26,7 @@
 #define FUNC_IN    0
 #define FUNC_OUT   1
 
-static volatile unsigned int *gpio_regs;
+volatile unsigned int *gpio_regs;
 
 // -----------------  GPIO: INIT & EXIT  ------------------
 
@@ -41,7 +41,7 @@ static inline int gpio_init(void)
     okay = WIFEXITED(rc) && WEXITSTATUS(rc) == 0;
     if (!okay) {
         printf("ERROR: this program requires BCM2711\n");
-        exit(1);
+        return -1;
     }
 
     // map gpio regs
@@ -72,6 +72,7 @@ static inline void gpio_exit(void)
 {
 #ifndef __KERNEL__
     // program termination will cleanup
+    // XXX should unmap
 #else
     iounmap(gpio_regs);
 #endif

@@ -3,6 +3,7 @@
 #include <linux/delay.h>
 
 #include "../../../util/util_gpio.h"
+#include "../../../util/util_time.h"
 
 //
 // defines
@@ -30,11 +31,6 @@ int gpiotest_init(void);
 void gpiotest_exit(void);
 
 static void gpiotest_proc(void);
-
-static void time_init(void);
-static void time_exit(void);
-static uint64_t time_get(void);
-static uint64_t time_delay(int duration);
 
 //
 // module info
@@ -88,12 +84,15 @@ void gpiotest_exit(void)
     printk("gpiotest_exit complete\n");
 }
 
-// -----------------  GPIOTEST PROC & SUPPORT ROUTINES -----------------------
+// -----------------  GPIOTEST PROC ------------------------------------------
 
 // test:   square wave with 2 us period
 // result: good square wave, with some jitter
 static void gpiotest_proc(void)
 {
+    // configure gpio 26 as an output
+    set_gpio_func(26,FUNC_OUT);
+
     while (true) {
         // set gpio 26 and delay until the next hardware timer microsec
         gpio_write(26, 1);
@@ -113,52 +112,3 @@ static void gpiotest_proc(void)
     gpiotest_exitted = true;
 }
 
-// - - - - - - - - -  TIME & DELAY SUPPORT - - - - - - - - - 
-
-#define TIMER_BASE_ADDR (0xfe000000 + 0x3000)
-
-static volatile unsigned int *timer_regs;
-static unsigned int           timer_initial_value;
-static unsigned int           timer_last_value;
-
-static void time_init(void)
-{
-    timer_regs = ioremap(TIMER_BASE_ADDR, 0x1000);
-    timer_initial_value = timer_last_value = timer_regs[1];
-}
-
-static void time_exit(void)
-{
-    iounmap(timer_regs);
-}
-
-// returns time in us since the module was loaded
-static uint64_t time_get(void)
-{
-    unsigned int value;
-    static uint64_t high_part;
-
-    value = timer_regs[1];
-
-    if (value < timer_last_value) {
-        high_part += ((uint64_t)1 << 32);
-    }
-    timer_last_value = value;
-
-    return high_part + value - timer_initial_value;
-}
-
-// delays for duration us, and returns the time at the end of the delay
-static uint64_t time_delay(int duration)
-{
-    uint64_t start, now;
-
-    start = time_get();
-    while (true) {
-        if ((now=time_get()) > start + duration) {
-            break;
-        }
-    }
-
-    return now;
-}

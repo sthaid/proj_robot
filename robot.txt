@@ -2,11 +2,7 @@
 TODO
 ===========================
 
-organize bookmarks for sensors
-  - move i2c bookmark to sensors
-
-mc unit test should be built in the tests directory
-- motor should shutdown when pgm exits
+motor should shutdown when pgm exits
 
 make a util_timer.h, similar to util_gpio.h
 - this is tested in the tests/realtime
@@ -531,6 +527,7 @@ configure system
 - EDITOR=vi visudo
        haid    ALL=(ALL) NOPASSWD: ALL
 - apt install git vim cscope ctags apt-file libreadline-dev tkcvs raspberrypi-kernel-headers
+- OPTIONAL: apt install evince eog
 - apt-file update
 
 configure my account
