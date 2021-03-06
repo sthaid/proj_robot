@@ -1,6 +1,54 @@
 ===========================
 TODO
 ===========================
+ADC HAT
+    raw_data=ADC.get_all_adc_raw_data()
+    vol_data=ADC.get_all_vol_milli_data()
+    ratio_data=ADC.get_all_ratio_0_1_data()
+    print("raw data for each channel:(1-8chan)(12 bit-max=4096):")
+    print(raw_data)
+    print("voltage for each channel:(unit:mv,max=3300mv):")
+    print(vol_data)
+    print ("ratio for each channel(unit 0.1%,max=100.0%):")
+    print(ratio_data)
+
+    vol_data=ADC.get_all_vol_milli_data()
+vol_data
+
+    def get_all_vol_milli_data(self):
+        array = []
+        for i in range(ADC_CHAN_NUM):
+            data=self.bus.read_i2c_block_data(self.addr,REG_VOL_START+i,2)
+            val=data[1]<<8|data[0]
+            array.append(val)
+        return array
+
+ADC_DEFAULT_IIC_ADDR = 0X04
+
+ADC_CHAN_NUM = 8
+
+REG_VOL_START = 0X20
+
+data = self.bus.read_i2c_block_data( ADDR, REG_VOL_START+i, 2
+            val=data[1]<<8|data[0]
+
+
+
+
+xxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxx
+do this sensor next
+Grove - Temperature, Humidity, Pressure and Gas Sensor for Arduino - BME680
+   https://www.seeedstudio.com/Grove-Temperature-Humidity-Pressure-and-Gas-Sensor-for-Arduino-BME680.html
+   5v or 3.3v
+   0x76 default, or 0x77
+grove_temperature_humidity_bme680.py
+
+
+
+add util_i2c.h to util dir, and use this to simplify both programs,
+add a Makefile
 
 motor should shutdown when pgm exits
 
@@ -703,6 +751,22 @@ Temperature sensor MCP9808
 - wiki: https://wiki.seeedstudio.com/Grove-I2C_High_Accuracy_Temperature_Sensor-MCP9808/
 - https://github.com/Seeed-Studio/Grove_Temperature_sensor_MCP9808
 - https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf
+        (Section 5.1 Registers, Page 16)
+
+ADC On the Grove Base Hat for Raspberry Pi
+- Grove Demo Code: adc_8chan_12bit.py
+- https://wiki.seeedstudio.com/Grove_Base_Hat_for_Raspberry_Pi/
+  Resources - Seeed Grove.py Library
+- https://files.seeedstudio.com/wiki/Grove_Base_Hat_for_Raspberry_Pi/res/STM32.pdf
+
+Grove - Temperature, Humidity, Pressure and Gas Sensor for Arduino - BME680
+- grove_temperature_humidity_bme680.py   (from grove demo code)
+  . this is just the user interface, no i2c code here
+- https://www.seeedstudio.com/Grove-Temperature-Humidity-Pressure-and-Gas-Sensor-for-Arduino-BME680.html
+  - 5v or 3.3v
+  - 0x76 default, or 0x77
+  - download the Seeed BME680 Library, to get file bme680.cpp
+  - Datasheet of BME680 is available here too
 
 ===========================
 RPI - REAL TIME PERFORMANCE TIPS
@@ -826,6 +890,11 @@ cscope and tags
     ctags -R
 - running cscope, -d is do not build xref
     cscope -d
+
+c beautifier
+- indent -kr -nut xxx.c
+    -kr    Use Kernighan & Ritchie coding style
+    -nut   Use spaces instead of tabs
 
 ===========================
 MOTOR SETUP
