@@ -49,8 +49,7 @@ void sensors_exit(void)
 
 // -----------------  SEEED HAT ADC  --------------------
 
-// range 0 - 3.3 V   xxx check this
-// xxx may be a way to not float these pins
+// range 0 - 3.3 V
 
 #define SEED_HAT_ADC_ADDR        0x04
 #define SEED_HAT_ADC_REG_VOLTAGE 0x20
@@ -76,7 +75,7 @@ int seeed_hat_adc_read(int chan, double *voltage)
     return 0;
 }
 
-// -----------------  MCP9808  --------------------------
+// -----------------  MCP9808 TEMPERATURE SENSOR  -------
 
 #define MCP9808_ADDR            0x18
 #define MCP9808_REG_TEMPERATURE 5
@@ -123,7 +122,7 @@ static int bme680_sensor_init(void)
 {
     int rc;
 
-    // xxx comments
+    // init the bme680.cpp code, and provide the i2c access and ms delay routines
     dev.dev_id   = BME680_ADDR;
     dev.intf     = BME680_I2C_INTF;
     dev.read     = i2c_read;
@@ -135,18 +134,22 @@ static int bme680_sensor_init(void)
         return -1;
     }
 
-    // xxx comments
+    // reset bme680
     rc = bme680_soft_reset(&dev);
     if (rc != 0) {
         ERROR("bme680_soft_reset rc=%d\n", rc);
         return -1;
     }
 
-    // xxx
-    dev.tph_sett.os_hum  = BME680_OS_1X;
-    dev.tph_sett.os_pres = BME680_OS_16X;
-    dev.tph_sett.os_temp = BME680_OS_2X;
-    dev.tph_sett.filter  = BME680_FILTER_SIZE_3;   // xxx check this
+    // apply bme680 settings
+    // - the oversampling and filter settings are copied from
+    //   grove_temperature_humidity_bme680.py
+    // - gas measurement is disabled; the grove_temperature_humidity_bme680.py
+    //   has gas measurement working, but I was not able to get a stable reading
+    dev.tph_sett.os_hum  = BME680_OS_2X;
+    dev.tph_sett.os_pres = BME680_OS_4X;
+    dev.tph_sett.os_temp = BME680_OS_8X;
+    dev.tph_sett.filter  = BME680_FILTER_SIZE_3;
 #if 1
     dev.gas_sett.run_gas = BME680_DISABLE_GAS_MEAS;
 #else
@@ -163,6 +166,13 @@ static int bme680_sensor_init(void)
         return -1;
     }
 
+#if 0
+    // print the profile duration, it should be short (43 ms) when gas measure is disabled
+    uint16_t ms;
+    bme680_get_profile_dur(&ms, &dev);
+    INFO("profile duration %d ms\n", ms);
+#endif
+
     return 0;
 }
 
@@ -171,6 +181,8 @@ int bme680_sensor_get_data(double *temperature, double *humidity, double *pressu
     int rc;
     struct bme680_field_data sensor_data;
 
+    // request bme680 start to obtain the temperature, humidity and pressure;
+    // note - the gas_resistance is not currently working, just pass in NULL for gas_resistance
     dev.power_mode = BME680_FORCED_MODE;
     rc = bme680_set_sensor_mode(&dev);
     if (rc != 0) {
@@ -178,6 +190,7 @@ int bme680_sensor_get_data(double *temperature, double *humidity, double *pressu
         return -1;
     }
 
+    // retrieve the sensor_data from the be680
     memset(&sensor_data,0,sizeof(sensor_data));
     rc = bme680_get_sensor_data(&sensor_data, &dev);
     if (rc != 0) {
@@ -185,6 +198,7 @@ int bme680_sensor_get_data(double *temperature, double *humidity, double *pressu
         return -1;
     }
     
+    // return the data to caller
     if (temperature) {
         *temperature = sensor_data.temperature / 100.;
     }
@@ -199,6 +213,7 @@ int bme680_sensor_get_data(double *temperature, double *humidity, double *pressu
                            ? sensor_data.gas_resistance : 0);
     }
 
+    // success
     return 0;
 }
 
