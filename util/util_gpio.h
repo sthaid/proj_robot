@@ -80,9 +80,17 @@ static inline void gpio_exit(void)
 
 // -----------------  GPIO: READ & WRITE  -----------------
 
+// these gpio read/write routines support only gpio 0 to 31, which
+// covers all of the gpios supported on the raspberry-pi header
+
 static inline int gpio_read(int pin)
 {
     return (gpio_regs[13] & (1 << pin)) != 0;
+}
+
+static inline unsigned int gpio_read_all(void)
+{
+    return gpio_regs[13];
 }
 
 static inline void gpio_write(int pin, int value)

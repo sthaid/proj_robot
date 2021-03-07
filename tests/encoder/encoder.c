@@ -12,8 +12,6 @@
 
 #include "../../util/util_gpio.h"
 
-// XXX todo , use one gpio read call to get all the bits at once
-
 // notes:
 // - 32 bit position var overflow after 69 hours full speed:
 //      980 cnt/rev * 500 rpm / 60 ~=  8000 count/sec
@@ -21,13 +19,23 @@
 // - encoder_tbl is from
 //   https://cdn.sparkfun.com/datasheets/Robotics/How%20to%20use%20a%20quadrature%20encoder.pdf
 
-static int encoder_tbl[4][4] = 
+// defines
+
+#define GPIO_ENC1  16
+#define GPIO_ENC2  17
+
+#define IS_BIT_SET(n,pos) (((n) >> (pos)) & 1)
+
+// variables
+
+int encoder_tbl[4][4] = 
     { {  0, -1, +1,  2 },
       { +1,  0,  2, -1 },
       { -1,  2,  0, +1 },
       {  2, +1, -1,  0 } };
-
 int poll_count, error_count, position;
+
+// prototypes
 
 void *encoder_thread(void *cx);
 void sig_handler(int num);
@@ -78,6 +86,7 @@ void sig_handler(int num)
 void *encoder_thread(void *cx)
 {
     int val, last_val, x, rc;
+    unsigned int gpio_all;
     struct timespec ts = {0,10000};  // 10 us
     struct sched_param param;
     cpu_set_t cpu_set;
@@ -107,9 +116,11 @@ void *encoder_thread(void *cx)
     // - error_count: number of out of sequence encoder gpio values
     // - poll_count:  number of times the gpio values have been read,
     //                this gets reset to 0 every second in main()
-    last_val = (gpio_read(16) << 1) | gpio_read(17);
+    gpio_all = gpio_read_all();
+    last_val = (IS_BIT_SET(gpio_all,GPIO_ENC1) << 1) | IS_BIT_SET(gpio_all,GPIO_ENC2);
     while (true) {
-        val = (gpio_read(16) << 1) | gpio_read(17);
+        gpio_all = gpio_read_all();
+        val = (IS_BIT_SET(gpio_all,GPIO_ENC1) << 1) | IS_BIT_SET(gpio_all,GPIO_ENC2);
         x = encoder_tbl[last_val][val];
         last_val = val;
 
