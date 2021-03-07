@@ -101,6 +101,22 @@ int main(int argc, char **argv)
             } while (current_speed != target_speed);
 
             break; }
+        case 'y': {
+            int i;
+            for (i = 0; i < 10; i++) {
+                mc_speed(mc, 3200);
+                sleep(10);
+
+                mc_speed(mc, 0);
+                sleep(2);
+
+                mc_speed(mc, -3200);
+                sleep(10);
+
+                mc_speed(mc, 0);
+                sleep(2);
+            }
+            break; }
         default:
             printf("ERROR: cmd '%c' invalid\n", cmd);
             break;

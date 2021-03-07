@@ -1,8 +1,9 @@
-SUBDIRS = ./realtime/module \
-          ./realtime/user_mode \
-          ./sensors \
-          ./motor_ctlr \
-          ./gpio
+SUBDIRS = realtime/module \
+          realtime/user_mode \
+          sensors \
+          motor_ctlr \
+          gpio \
+          encoder
   
 .PHONY: build clean
 

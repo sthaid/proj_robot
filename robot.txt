@@ -1,75 +1,35 @@
+analog 0
+relay    5
+encoder   16
+          17
+
 ===========================
 TODO
 ===========================
-ADC HAT
-    raw_data=ADC.get_all_adc_raw_data()
-    vol_data=ADC.get_all_vol_milli_data()
-    ratio_data=ADC.get_all_ratio_0_1_data()
-    print("raw data for each channel:(1-8chan)(12 bit-max=4096):")
-    print(raw_data)
-    print("voltage for each channel:(unit:mv,max=3300mv):")
-    print(vol_data)
-    print ("ratio for each channel(unit 0.1%,max=100.0%):")
-    print(ratio_data)
 
-    vol_data=ADC.get_all_vol_milli_data()
-vol_data
+voltage dividers
+- find resistor values for voltage divider, and do I have these resistors, test with 5.2V power
+   https://www.raspberrypi.org/forums/viewtopic.php?t=209958
+             suggests 10k and 20k, for low frequency signals
+   VIL=0.8V means that if the output is Low it will be <= 0.8V.
+   VIL=1.3V means that if the output is High it will be >= 1.3V
+- pins and crimping tool
 
-    def get_all_vol_milli_data(self):
-        array = []
-        for i in range(ADC_CHAN_NUM):
-            data=self.bus.read_i2c_block_data(self.addr,REG_VOL_START+i,2)
-            val=data[1]<<8|data[0]
-            array.append(val)
-        return array
+proximity sensor, solder it and test with scope
 
-ADC_DEFAULT_IIC_ADDR = 0X04
+review video on the connector pin crimping
 
-ADC_CHAN_NUM = 8
-
-REG_VOL_START = 0X20
-
-data = self.bus.read_i2c_block_data( ADDR, REG_VOL_START+i, 2
-            val=data[1]<<8|data[0]
-
-
-
-
-xxxxxxxxxxxxxxxxxxxxxxx
-xxxxxxxxxxxxxxxxxxxxxxx
-xxxxxxxxxxxxxxxxxxxxxxx
-do this sensor next
-Grove - Temperature, Humidity, Pressure and Gas Sensor for Arduino - BME680
-   https://www.seeedstudio.com/Grove-Temperature-Humidity-Pressure-and-Gas-Sensor-for-Arduino-BME680.html
-   5v or 3.3v
-   0x76 default, or 0x77
-grove_temperature_humidity_bme680.py
-
-
-
-add util_i2c.h to util dir, and use this to simplify both programs,
-add a Makefile
-
-motor should shutdown when pgm exits
-
-make a util_timer.h, similar to util_gpio.h
-- this is tested in the tests/realtime
-
-i2c devices (C language code)
-- grove hat A/D converter 
-- graphics display
-- grove temperature humidity sensor
-- grove inertial measurement
-
-other sensors (non-i2c)
-- proximity
-- relays
-
-Sensors DONE:
-- MCP9808 simple temperature sensor 
+sensors:
+- i2c devices (C language code)
+   - graphics display
+   - grove inertial measurement
+- other sensors (non-i2c)
+   - proximity
 
 draw diagram of robot first level
   leave room for 2nd level
+
+motor should shutdown when pgm exits
 
 more to buy
 - mounting board,  3/8" thick chopping board
@@ -83,7 +43,9 @@ encoders
    - start with user mode pgm
    - add support to roc
 
-review video on the connector pin crimping
+clean up bookmarks
+
+check on my rpi post
 
 ------------------- ------------------- -------------------
 ------------------- ------------------- -------------------
@@ -353,7 +315,7 @@ Pololu Relay          ORDERED
 straight 0.1" male header for the control connections
 
 Pololu 38 kHz IR Proximity Sensor, Fixed Gain, High Brightness          ORDERED
-   boltage divider
+   voltage divider
    https://www.raspberrypi.org/forums/viewtopic.php?t=209958
 
 ===========================

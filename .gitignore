@@ -18,3 +18,5 @@ tests/sensors/grove
 tests/sensors/relay
 tests/sensors/sensors
 
+tests/encoder/encoder
+
