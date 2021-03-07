@@ -46,10 +46,10 @@ int main(int argc, char **argv)
         exit(1);
     }
 
-    // register for SIGINT, which will be used to reset the position var
+    // register for SIGQUIT, which will be used to reset the position var
     memset(&act, 0, sizeof(act));
     act.sa_handler = sig_handler;
-    sigaction(SIGINT, &act, NULL);
+    sigaction(SIGQUIT, &act, NULL);
 
     // create the thread to process the encoder gpio values, and to
     // keep track of accumulated shaft position
@@ -69,7 +69,7 @@ int main(int argc, char **argv)
 
 void sig_handler(int num)
 {
-    // reseet position count to 0 on ^c
+    // reseet position count to 0 on SIGQUIT (ctrl backslash)
     position = 0;
 }
 
@@ -103,7 +103,7 @@ void *encoder_thread(void *cx)
     }
 
     // loop, reading the encode gpio, and updating:
-    // - position:    accumulated shaft position, this can be reset to 0 via ^c
+    // - position:    accumulated shaft position, this can be reset to 0 via ctrl+backslash
     // - error_count: number of out of sequence encoder gpio values
     // - poll_count:  number of times the gpio values have been read,
     //                this gets reset to 0 every second in main()
