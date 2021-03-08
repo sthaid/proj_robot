@@ -3,9 +3,15 @@ relay    5
 encoder   16
           17
 
+book marks needed for OLED u8g2, DSDTECTH and AMAZON
+
+something happened to DISPLAY VAR
+
 ===========================
 TODO
 ===========================
+
+put max_cpu back to 4  (delete it)
 
 voltage dividers
 - find resistor values for voltage divider, and do I have these resistors, test with 5.2V power
@@ -693,6 +699,8 @@ i2cget / i2cset : read and write i2c registers
       i = I2C block write
       default is bte mode without PEC
 
+- - - - - - - - - - - - - - - - - - - - - 
+
 SeeedStudio Grove Demo Code
 - Reference
   . https://wiki.seeedstudio.com/Grove_Base_Hat_for_Raspberry_Pi/
@@ -706,6 +714,8 @@ SeeedStudio Grove Demo Code
 - cd grove
 - python3 ./adc_8chan_12bit.py
 
+- - - - - - - - - - - - - - - - - - - - - 
+
 Temperature sensor MCP9808
 - https://www.seeedstudio.com/Grove-I2C-High-Accuracy-Temperature-Sensor-MCP9808.html
      5v or 3.3v
@@ -715,11 +725,15 @@ Temperature sensor MCP9808
 - https://ww1.microchip.com/downloads/en/DeviceDoc/25095A.pdf
         (Section 5.1 Registers, Page 16)
 
+- - - - - - - - - - - - - - - - - - - - - 
+
 ADC On the Grove Base Hat for Raspberry Pi
 - Grove Demo Code: adc_8chan_12bit.py
 - https://wiki.seeedstudio.com/Grove_Base_Hat_for_Raspberry_Pi/
   Resources - Seeed Grove.py Library
 - https://files.seeedstudio.com/wiki/Grove_Base_Hat_for_Raspberry_Pi/res/STM32.pdf
+
+- - - - - - - - - - - - - - - - - - - - - 
 
 Grove - Temperature, Humidity, Pressure and Gas Sensor for Arduino - BME680
 - grove_temperature_humidity_bme680.py   (from grove demo code)
@@ -729,6 +743,79 @@ Grove - Temperature, Humidity, Pressure and Gas Sensor for Arduino - BME680
   - 0x76 default, or 0x77
   - download the Seeed BME680 Library, to get file bme680.cpp
   - Datasheet of BME680 is available here too
+
+- - - - - - - - - - - - - - - - - - - - - 
+
+DSD TECH 2 PCS IIC OLED Display 0.91 Inch for Arduino ARM
+- https://www.amazon.com/gp/product/B07D9H83R4/ref=ox_sc_act_title_1?smid=AFLYC5O31PGVX&psc=1
+- http://www.dsdtech-global.com/2018/05/iic-oled-lcd-u8glib.html
+   . "The main chip is SSD1306; supports DC 3.3V to 5.0V supply. "
+   . "you can download library from :  https://github.com/olikraus/u8glib"
+- https://github.com/olikraus/u8glib
+   . "Note: There will be no more development for U8glib. Please use u8g2."
+- So, here is u8g2 ...
+   . https://github.com/olikraus/u8g2/wiki
+   . https://github.com/olikraus/u8g2
+   . git@github.com:olikraus/u8g2.git
+
+- Setup Guide and Reference Manual
+   . https://github.com/olikraus/u8g2/wiki
+- U8g2 C Setup
+   . https://github.com/olikraus/u8g2/wiki/u8g2setupc
+- U8ge Reference Manual
+   . https://github.com/olikraus/u8g2/wiki/u8g2reference
+- All U8g2 Fonts
+   . https://github.com/olikraus/u8g2/wiki/fntlistall
+
+- Notes from "Setup Guide and Reference Manual":
+    - U8g2 is a monochrome graphics library for embedded devices.
+    - U8g2 also includes U8x8 library. Features for U8g2 and U8x8 are:
+    - U8g2
+      . Includes all graphics procedures (line/box/circle draw).
+      . Supports many fonts. (Almost) no restriction on the font height.
+      . Requires some memory in the microcontroller to render the display.
+    - U8x8
+      . Text output only (character) device.
+      . Only fonts allowed with fixed size per character (8x8 pixel).
+      . Writes directly to the display. No buffer in the microcontroller required.
+
+- Clone u8g2.git, and examined some of the contents:
+  - cscr   for u8g2 and u8x8
+    - C language code
+    - one way to extract the available font names:
+        grep const csrc/u8g2_fonts.c | grep logisoso
+  - sys/linux-i2c/128x32-oled
+    - note that the code in this directory, and in ../common is already configured 
+      for the SSD1306 chip  (ADDR = 0x3C)
+    - modified main.c to use this setup line
+       u8g2_Setup_ssd1306_i2c_128x32_univision_f(&u8g2, U8G2_R0, ...)
+    - modified ../common/linux-i2c.c, to specify the i2c bus
+       file = 1
+    - ran make, which generated helloworld, and successfully ran helloworld
+
+- incorporating this code into util_sensors.c
+  - step 1
+    - sudo apt install libi2c-dev
+    - cd u8g2/csrc
+    - gcc -c -g -Wall *.c
+    - ar cr libu8g2.a *.o
+    - mkdir ~/proj/proj_robot/util//u8g2
+    - cp *.h libu8g2.a ~/proj/proj_robot/util//u8g2
+    - add a copyright file in this new directory too
+  - step 2
+    - add code to util_sensors.c, by porting from 
+      u8g2/sys/linux-i2c  main.c and linux-i2c.c 
+    - add 2 routines:
+        u8g2_ssd1306_init(void)
+        u8g2_ssd1306_draw_str(char *s)
+      use a large font size, to only accomodate just one line of text,
+      such as u8g2_font_logisoso32_tr, where
+        t = transparanet
+        r = restricted, chars 32 to 127 only
+  - step 3
+    - add test code to test/sensors/sensors.c
+
+- - - - - - - - - - - - - - - - - - - - - 
 
 ===========================
 RPI - REAL TIME PERFORMANCE TIPS
