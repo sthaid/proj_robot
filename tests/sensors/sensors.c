@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 
     for (int i = 0; i < 10; i++) {
         char s[20];
-        sprintf(s, "HI %d", i);
+        sprintf(s, "HI %d ABC", i);
         rc = ssd1306_oled_u8g2_drawstr(s);
         if (rc < 0) exit(1);
         sleep(1);
