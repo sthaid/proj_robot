@@ -31,6 +31,14 @@ int main(int argc, char **argv)
     printf("BME680 TEMP=%0.1f C   HUMIDITY=%0.1f %%    PRESSURE=%0.0f Pa  %0.2f inch_Hg\n\n",
            temp_degc, humidity_percent, pressure_pascal, pressure_in_hg);
 
+    for (int i = 0; i < 10; i++) {
+        char s[20];
+        sprintf(s, "HI %d", i);
+        rc = ssd1306_oled_u8g2_draw_str(s);
+        if (rc < 0) exit(1);
+        sleep(1);
+    }
+
     sensors_exit();
 
     return 0;

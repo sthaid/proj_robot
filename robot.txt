@@ -5,8 +5,6 @@ encoder   16
 
 book marks needed for OLED u8g2, DSDTECTH and AMAZON
 
-something happened to DISPLAY VAR
-
 ===========================
 TODO
 ===========================
@@ -806,8 +804,8 @@ DSD TECH 2 PCS IIC OLED Display 0.91 Inch for Arduino ARM
     - add code to util_sensors.c, by porting from 
       u8g2/sys/linux-i2c  main.c and linux-i2c.c 
     - add 2 routines:
-        u8g2_ssd1306_init(void)
-        u8g2_ssd1306_draw_str(char *s)
+        ssd1306_oled_u8g2_init(void)
+        ssd1306_oled_u8g2_draw_str(char *s)
       use a large font size, to only accomodate just one line of text,
       such as u8g2_font_logisoso32_tr, where
         t = transparanet

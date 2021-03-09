@@ -5,19 +5,26 @@
 #include <unistd.h>
 #include <string.h>
 #include <errno.h>
+#include <time.h>
 
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #include <linux/i2c.h>
 #include <linux/i2c-dev.h>
+#include <i2c/smbus.h>
 
 #include "util_sensors.h"
 #include "util_misc.h"
-#include "bme680.h"
+
+#include "bme680.h"  // XXX put in subdir
+#include "u8g2/u8g2.h"
+
+#define DEVNAME "/dev/i2c-1"
+
+static int bme680_sensor_init(void);
+static int ssd1306_oled_u8g2_init(void);
 
 static int i2c_init(void);
-static int bme680_sensor_init(void);
-
 static int8_t i2c_read(uint8_t addr, uint8_t reg_addr, uint8_t * reg_data, uint16_t len);
 static int8_t i2c_write(uint8_t addr, uint8_t reg_addr, uint8_t * reg_data, uint16_t len);
 
@@ -36,6 +43,12 @@ int sensors_init(void)
     rc = bme680_sensor_init();
     if (rc) {
         ERROR("bme680_sensor_init failed\n");
+        return -1;
+    }
+
+    rc = ssd1306_oled_u8g2_init();
+    if (rc) {
+        ERROR("ssd1306_oled_u8g2_init failed\n");
         return -1;
     }
 
@@ -115,6 +128,8 @@ static struct bme680_dev dev;
 
 static void delay_ms(uint32_t ms)
 {
+    // XXX have a common sleep routine
+    // XXX signals
     usleep(1000*ms);
 }
 
@@ -217,9 +232,138 @@ int bme680_sensor_get_data(double *temperature, double *humidity, double *pressu
     return 0;
 }
 
+// -----------------  SSD1306 OLED DISPLAY  -------------
+
+#define SSD1306_ADDR  0x3c
+
+static uint8_t u8x8_byte_linux_i2c(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr);
+static uint8_t u8x8_linux_i2c_delay(u8x8_t *u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr);
+
+static u8g2_t u8g2;
+
+static int ssd1306_oled_u8g2_init(void)
+{
+    u8g2_Setup_ssd1306_i2c_128x32_univision_f(
+        &u8g2, 
+        U8G2_R0, 
+        u8x8_byte_linux_i2c, 
+        u8x8_linux_i2c_delay);
+
+    u8g2_SetI2CAddress(&u8g2, SSD1306_ADDR);
+
+    u8g2_InitDisplay(&u8g2);
+
+    u8g2_SetPowerSave(&u8g2, 0);
+
+    u8g2_ClearBuffer(&u8g2);
+
+    u8g2_SetFont(&u8g2, u8g2_font_logisoso32_tf);
+
+    u8g2_SetFontRefHeightText(&u8g2);  // XXX what is this
+
+    u8g2_SetFontPosTop(&u8g2);
+
+    u8g2_DrawStr(&u8g2, 0, 0, "  ---  ");
+
+    u8g2_SendBuffer(&u8g2);
+
+    return 0;
+}
+
+int ssd1306_oled_u8g2_draw_str(char *s)
+{
+    u8g2_ClearBuffer(&u8g2);
+    u8g2_DrawStr(&u8g2, 0, 0, s);
+    u8g2_SendBuffer(&u8g2);
+
+    return 0;
+}
+
+// return 1 for success, 0 for failure
+static uint8_t u8x8_byte_linux_i2c(u8x8_t * u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
+{
+    static int fd;
+    static uint8_t data[32];
+    static int idx;
+
+    switch (msg) {
+    case U8X8_MSG_BYTE_SEND:
+        for (int i = 0; i < arg_int && idx < sizeof(data); i++, idx++) {
+            data[idx] = *(uint8_t *) (arg_ptr + i);
+        }
+        break;
+    case U8X8_MSG_BYTE_INIT:
+        // one-time setup
+        fd = open(DEVNAME, O_RDWR);
+        if (fd < 0) {
+            ERROR("can't open %s, %s\n", DEVNAME, strerror(errno));
+            return 0;
+        }
+        if (ioctl(fd, I2C_SLAVE, SSD1306_ADDR) < 0) { // u8x8_GetI2CAddress(u8x8)
+            ERROR("can't set addr %0x, %s\n", SSD1306_ADDR, strerror(errno));
+            return 0;
+        }
+        break;
+    case U8X8_MSG_BYTE_SET_DC:
+        // ignored for i2c 
+        break;
+    case U8X8_MSG_BYTE_START_TRANSFER:
+        memset(data, 0, sizeof(data));
+        idx = 0;
+        break;
+    case U8X8_MSG_BYTE_END_TRANSFER:
+        if (i2c_smbus_write_i2c_block_data(fd, data[0], idx - 1, &data[1]) < 0) {
+            ERROR("can't write cmd %0x: %s\n", data[0], strerror(errno));
+            return 0;
+        }
+        break;
+    default:
+        ERROR("unknown msg type %d\n", msg);
+        return 0;
+    }
+
+    return 1;
+}
+
+// return 1 for success, 0 for failure
+static uint8_t u8x8_linux_i2c_delay(u8x8_t * u8x8, uint8_t msg, uint8_t arg_int, void *arg_ptr)
+{
+    struct timespec req;
+    struct timespec rem;
+    int ret;
+
+    req.tv_sec = 0;
+
+    switch (msg) {
+    case U8X8_MSG_DELAY_NANO:    // delay arg_int * 1 nano second
+        req.tv_nsec = arg_int;
+        break;
+    case U8X8_MSG_DELAY_100NANO: // delay arg_int * 100 nano seconds
+        req.tv_nsec = arg_int * 100;
+        break;
+    case U8X8_MSG_DELAY_10MICRO: // delay arg_int * 10 micro seconds
+        req.tv_nsec = arg_int * 10000;
+        break;
+    case U8X8_MSG_DELAY_MILLI:   // delay arg_int * 1 milli second
+        req.tv_nsec = arg_int * 1000000;
+        break;
+    default:
+        return 0;
+    }
+
+    while ((ret = nanosleep(&req, &rem)) && errno == EINTR) {
+        req = rem;
+    }
+    if (ret) {
+        ERROR("nanosleep, %s\n", strerror(errno));
+        return 0;
+    }
+
+    return 1;
+}
+
 // -----------------  I2C ACCESS  -----------------------
 
-#define DEVNAME "/dev/i2c-1"
 static int fd;
 
 static int i2c_init(void)
