@@ -16,12 +16,12 @@
 #include "util_sensors.h"
 #include "util_misc.h"
 
-#include "bme680.h"  // XXX put in subdir
+#include "bme680/bme680.h"  // XXX put in subdir
 #include "u8g2/u8g2.h"
 
 #define DEVNAME "/dev/i2c-1"
 
-static int bme680_sensor_init(void);
+static int bme680_thpg_init(void);
 static int ssd1306_oled_u8g2_init(void);
 
 static int i2c_init(void);
@@ -40,9 +40,9 @@ int sensors_init(void)
         return -1;
     }
 
-    rc = bme680_sensor_init();
+    rc = bme680_thpg_init();
     if (rc) {
-        ERROR("bme680_sensor_init failed\n");
+        ERROR("bme680_thpg_init failed\n");
         return -1;
     }
 
@@ -67,7 +67,7 @@ void sensors_exit(void)
 #define SEED_HAT_ADC_ADDR        0x04
 #define SEED_HAT_ADC_REG_VOLTAGE 0x20
 
-int seeed_hat_adc_read(int chan, double *voltage)
+int stm32_seeed_hat_adc_read(int chan, double *voltage)
 {
     uint8_t data[2];
     int rc;
@@ -98,7 +98,7 @@ int seeed_hat_adc_read(int chan, double *voltage)
 #define MCP9808_LOWER_LIMIT     0x2000
 #define MCP9808_SIGN            0x1000
 
-int mcp9808_read(double *degc)
+int mcp9808_temperature_read(double *degc)
 {
     int rc;
     uint8_t data[2];
@@ -133,7 +133,7 @@ static void delay_ms(uint32_t ms)
     usleep(1000*ms);
 }
 
-static int bme680_sensor_init(void)
+static int bme680_thpg_init(void)
 {
     int rc;
 
@@ -191,7 +191,7 @@ static int bme680_sensor_init(void)
     return 0;
 }
 
-int bme680_sensor_get_data(double *temperature, double *humidity, double *pressure, double *gas_resistance)
+int bme680_thpg_read(double *temperature, double *humidity, double *pressure, double *gas_resistance)
 {
     int rc;
     struct bme680_field_data sensor_data;
@@ -270,7 +270,7 @@ static int ssd1306_oled_u8g2_init(void)
     return 0;
 }
 
-int ssd1306_oled_u8g2_draw_str(char *s)
+int ssd1306_oled_u8g2_drawstr(char *s)
 {
     u8g2_ClearBuffer(&u8g2);
     u8g2_DrawStr(&u8g2, 0, 0, s);
