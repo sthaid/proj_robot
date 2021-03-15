@@ -1,68 +1,101 @@
-analog 0
-relay    5
-encoder   16
-          17
-
-book marks needed for OLED u8g2, DSDTECTH and AMAZON
-
 ===========================
-TODO
+TITLE: INTRO - TODO
 ===========================
+
+clean up bookmarks
+- add book marks needed for OLED u8g2, DSDTECTH and AMAZON
 
 put max_cpu back to 4  (delete it)
 
-voltage dividers
-- find resistor values for voltage divider, and do I have these resistors, test with 5.2V power
-   https://www.raspberrypi.org/forums/viewtopic.php?t=209958
-             suggests 10k and 20k, for low frequency signals
-   VIL=0.8V means that if the output is Low it will be <= 0.8V.
-   VIL=1.3V means that if the output is High it will be >= 1.3V
-- pins and crimping tool
+bring over robot.txt to new repo
 
-proximity sensor, solder it and test with scope
+i2c test pgm, 
+- cleanup
+- detect acceleration
+
+more devices
+- relay
+- proximity
+- encoder
+- motor_ctlr
+
+more misc
+- gpio, time, etc
+
+upper levels of the software
+- real time thread for gpio, to feed proximity and encoders
+
+thread for i2c, 
+- collect data from the different devices at different rates
+- collect accel data rapidly
+- alarm on high accel
+
+alarm conditions to shut down motors
+- high accel
+- high motor current
+- wheels turning too slowly
+- proximity alert
+
+check motor ctlr config for why they don't shut down when test pgm exits
+
+mounting hardware details
+- including proximity sensor which doesn't have holes
+
+integrate motor ctlr and encoders software
+
+initial test commands
+- go forward
+- turn clockwise
+- turn counter-clockwise
+
+control pgm
+- design screen layout and ctrls
+- use curses?
 
 review video on the connector pin crimping
 
-sensors:
-- i2c devices (C language code)
-   - graphics display
-   - grove inertial measurement
-- other sensors (non-i2c)
-   - proximity
+dbg
+- make a backup script, to google drive
+- safe_memcpy
+- don't use memcpy in RW_MMIO
+- funcs, startup should get BCM base address, and use in timer test
 
 draw diagram of robot first level
   leave room for 2nd level
 
-motor should shutdown when pgm exits
+------------------------
+---- more purchases ----
+------------------------
 
-more to buy
+mini usb powered speaker
+  https://www.adafruit.com/product/3369?gclid=Cj0KCQiA1pyCBhCtARIsAHaY_5dlgZhTCQnYGxz1FiyT1kMasrLJ9ZTd90ENvQ0SRazVM1OeX81B2s0aAgseEALw_wcB
+
+sensor mount standoffs, for rpi
+  https://www.pololu.com/product/1952
+
+standoffs
+  https://www.amazon.com/Litorange-320PCS-Standoff-Assorted-Assortment/dp/B07D78PFQL/ref=sr_1_3?dchild=1&keywords=m2%2Bscrews%2Band%2Bstandoffs&qid=1615347745&s=hi&sr=1-3&th=1
+
+--- not as good ?  ---
+other speaker
+  https://www.amazon.com/gp/product/B088CSDZQM/ref=ox_sc_act_title_2?smid=A2DA7S2LQRKGVB&psc=1
+
+standoffs
+  https://www.trossenrobotics.com/store/p/6997-Grove-Mounting-Kit.aspx
+  http://www.mindsensors.com/ev3-and-nxt/22-mounting-kit-for-grove-sensor
+
+old, more to buy list
 - mounting board,  3/8" thick chopping board
 - mounting hardware for rpi and sensors, standoffs and screws
 - dupont? connector pins and crimper, male and female
+- pin connectors and crimp tool
+- larger oled display, 5V, same chip if possible
+- powered speaker, 5V, USB?
+- mounting h/w for grove sensors
 
-encoders
-- build voltage divider for encoders
-- write encoder test pgm,  and util_encoder.h,  start doing this in user mode, then maybe use roc
-- motor encoder
-   - start with user mode pgm
-   - add support to roc
-
-clean up bookmarks
-
-check on my rpi post
-
-------------------- ------------------- -------------------
-------------------- ------------------- -------------------
-------------------- ------------------- -------------------
-
-plan what I'll need for hooking up the motors for initial testing
-- use battery setup described below
-  - pwr rpi from this, and ground the rpi 
-  - check usb cable ground, is it rpi ground?
-- connect motor ctlr to terminal block, for easier testing
-- connect motor ctlr to pc, and do setup
-  - prbably first without 12vdc
-- test with linux pgm
+------------------------
+---- old todo list  ----
+------------------------
 
 plan and buy parts for power distribution
 - mount them on a small board, leave room for motor ctlrs too
@@ -76,19 +109,15 @@ plan and buy parts for power distribution
   i2c displays ?
   relays
 
-dbg
-- make a backup script
-- safe_memcpy
-- don't use memcpy in RW_MMIO
-- funcs, startup should get BCM base address, and use in timer test
-
 estimate weight of robot
 - battery
 - motors
 - chassis
 
+check on my rpi post
+
 ===========================
-ROBOT CAPABILITY IDEAS
+TITLE: INTRO - ROBOT CAPABILITY IDEAS
 ===========================
 
 - motion, and rotation
@@ -115,7 +144,7 @@ ROBOT CAPABILITY IDEAS
   - color organ
 
 ===========================
-PARTS SUPPLIERS
+TITLE: PARTS - SUPPLIERS
 ===========================
 
 Pololu
@@ -130,7 +159,7 @@ SeeedStudio
 Amazon
 
 ===========================
-ROBOT CHASIS
+TITLE: PARTS - ROBOT CHASIS
 ===========================
 
 Suggestion 1: Lowes
@@ -149,10 +178,10 @@ Suggestion 2:
   Triangular shape, or similar
 
 ===========================
-MECHANICAL / MOTORS
+TITLE: PARTS - MECHANICAL / MOTORS
 ===========================
 
-2 motors with quadrature encoders                ORDERED
+2 motors with quadrature encoders
    - 25D metal gearmotor
    - Pololu item #: 4843
    - voltage                    12 V
@@ -160,35 +189,35 @@ MECHANICAL / MOTORS
    - stall extrapolation        6 kg⋅cm (85 oz⋅in), 5.6 A 
    - encoder: 980  counts per rev
 
-2 motor controllers,  either usb or i2c          ORDERED
+2 motor controllers,  either usb or i2c
    product   https://www.pololu.com/product/1362`0
    doc       https://www.pololu.com/docs/0J77
 
-2 motor mounts                                   ORDERED
+2 motor mounts
 
-2 wheels  80mm diameter                          ORDERED
+2 wheels  80mm diameter
     3mm and 4mm round and D shaft
 
-1 caster wheels                                  ORDERED
+1 caster wheels
   for up to 10lb robot
 
 ===========================
-ELECTRONICS PARTS
+TITLE: PARTS - ELECTRONICS
 ===========================
 
-2 Raspberry Pi model 4                           ORDERED
+2 Raspberry Pi model 4
     https://www.amazon.com/gp/product/B0899VXM8F/ref=ox_sc_act_title_2?smid=A3I5MJJ49RUSVZ&psc=1
-
-2 MicroSd card                                   ORDERED
+OLED Arduino
+2 MicroSd card
    https://www.amazon.com/gp/product/B07YFG7T8F/ref=ppx_yo_dt_b_search_asin_title?ie=UTF8&psc=1#
 
-2 power supplies, usb c connector                ORDERED 1
+2 power supplies, usb c connector
     https://www.amazon.com/gp/cart/view.html?ref_=nav_cart
 
 Seeed Parts
-- Respeaker HAT                                  ORDERED
+- Respeaker HAT
      https://wiki.seeedstudio.com/ReSpeaker_4_Mic_Array_for_Raspberry_Pi/
-- Grove HAT for RPI,  capabilities needed:       ORDERED
+- Grove HAT for RPI,  capabilities needed:
      https://wiki.seeedstudio.com/Grove_Base_Hat_for_Raspberry_Pi/
            6 digital
            4 analog
@@ -197,29 +226,29 @@ Seeed Parts
            1 uart
 
 Grove Cables ordered from Amazon and SeeedStudio
-- grove cables                                   ORDERED
+- grove cables
       https://www.seeedstudio.com/Grove-Universal-4-Pin-Buckled-20cm-Cable-5-PCs-pack.html
       also placed an amazon order: for Cables-Grove - 4 Pin Female Jumper 
               To Grove 4 Pin Conversion Cable (5 Pcs Per Pack)
 
 Sensors, either from Seeed or Polulo
-- accelerometer from Seeed                       ORDERED
-- temperature / humidity / pressure              ORDERED
+- accelerometer from Seeed
+- temperature / humidity / pressure
      https://www.seeedstudio.com/Grove-Temperature-Humidity-Pressure-and-Gas-Sensor-for-Arduino-BME680.html
 - 2 other temperature
 - ADC
 - OLED display
 
 I2C Expansion
-- i2c expansion board for grove                  ORDERED 1 from amazon and 1 from robotshop
+- i2c expansion board for grove
      https://www.amazon.com/Grove-I2C-Hub-Port-Cable/dp/B07CW54T2S/ref=sr_1_2?dchild=1&keywords=grove+i2c+hub&qid=1613323453&s=electronics&sr=1-2
             OR
-     https://www.robotshop.com/en/grove-i2c-hub-6-port.html             ORDERED
+     https://www.robotshop.com/en/grove-i2c-hub-6-port.html
 
-GPIO HAT, saw on Amazon                          ORDERED
+GPIO HAT, saw on Amazon
    https://www.amazon.com/gp/product/B0876V959B/ref=ox_sc_act_title_4?smid=AJVXCJJFWBFD7&psc=1
 
-GROVE HAT, bought 2nd one on Amazon              ORDERED
+GROVE HAT, bought 2nd one on Amazon
    https://www.amazon.com/gp/product/B07LD8C51J/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&psc=1
 
 Speaker                                          USE WHAT I HAVE
@@ -230,43 +259,28 @@ Camera, mounted on pan servo                     LATER
   also zoom
 
 ===========================
-POWER SUPPLY PARTS
+TITLE: PARTS - POWER SUPPLY
 ===========================
 
 12 V battery                             
-  2 lbs  12V 8AH                                   ORDERED
-Charger                                            ORDERED
-Cable                                              ORDERED
-Fuse with siwtch                                   ORDERED
+  2 lbs  12V 8AH
+Charger
+Cable
+Fuse with siwtch
 
-2 converters for 12V to USB-C                      ORDERED
+2 converters for 12V to USB-C
    12V to 5V DC USB Type-C Right Angle Step-Down Power Converter, Buck Converter,
    15W Output, 3A at 5V USB Type-C Power Supply, Waterproof (12V to 5V USB-C Power Converter)
   https://www.amazon.com/gp/product/B086KTGRH1/ref=ox_sc_act_title_1?smid=A3OL48EYOMUID7&psc=1
 
-12v to 5vdc converter                              ORDERED
+12v to 5vdc converter
   https://www.amazon.com/gp/product/B00J3MHRNO/ref=ppx_yo_dt_b_asin_title_o00_s00?ie=UTF8&psc=1
 
-alternate power for rpi...                         MAYBE LATER
+alternate power for rpi...   DID NOT ORDER
 https://vilros.com/products/10-000mah-portable-power-supply-for-raspberry-pi?variant=32002533556318&currency=USD&utm_medium=product_sync&utm_source=google&utm_content=sag_organic&utm_campaign=sag_organic&gclid=CjwKCAiAjp6BBhAIEiwAkO9WuvWw6wfrs-4rUlg9dYt_w-F0c-7BhGa9sFONy9GJOnmdizK6hQ9fHhoCH1QQAvD_BwE
 
 ===========================
-WIRING
-===========================
-
-Ampacity
-  24 AWG   2 amp
-  22       3 amp
-  20       5 amp
-  18       10
-  14       15
-
-Connector Pitch
-  2.54 mm  rpi hdr, and most others, except
-  2.00 mm  grove connector
-
-===========================
-SENSORS SUMMARY
+TITLE: SENSORS - SUMMARY
 ===========================
 
 SeeedStudio Sensor Search Link
@@ -311,334 +325,25 @@ DSD TECH 2 PCS IIC OLED Display 0.91 Inch for Arduino ARM
 
 Pololu (relay and sensor)
 -------------------------
-Pololu Relay          ORDERED
+Pololu Relay
   2.5V enables
   rpi gpio
      VIL=0.8V means that if the output is Low it will be <= 0.8V.
      VIL=1.3V means that if the output is High it will be >= 1.3V
 straight 0.1" male header for the control connections
 
-Pololu 38 kHz IR Proximity Sensor, Fixed Gain, High Brightness          ORDERED
+Pololu 38 kHz IR Proximity Sensor, Fixed Gain, High Brightness
    voltage divider
    https://www.raspberrypi.org/forums/viewtopic.php?t=209958
 
 ===========================
-POLOLU SIMPLE MOTOR CONTROLLER
-===========================
-
-https://www.pololu.com/product/1362
-
-User's Guide
-  html:  https://www.pololu.com/docs/0J77
-  pdf:   https://www.pololu.com/docs/pdf/0J77/simple_motor_controller_g2.pdf
-
-Configurator runs only on Windows
-   see section:  3.1. Installing Windows drivers and software
-   cmdline tool is:   smcg2cmd.exe
-
-install windoes drivers and software,  sect 3.1
-  The SMC G2’s native USB interface implements Microsoft OS 2.0 Descriptors, 
-  so it will work on Windows 8.1 or later without needing any drivers. 
-  The USB serial ports will work on Windows 10 or later without drivers.
-
-The Simple Motor Control Center G2 is a graphical user interface (GUI) for configuring the
-controller, viewing its status, and controlling it manually. You can find the configuration 
-utility in your Start Menu by searching for it or looking in the Pololu folder.
-
-The Simple Motor Controller G2 Command-line Utility (smcg2cmd) is a command-line utility
-that can do most of what the GUI can do, and more. You can open a Command Prompt and
-type smcg2cmd with no arguments to see a summary of its options.
-
-Tips:
-- Make your motor leads as thick and as short as possible, and 
-- Twist them around each other. 
-- It is also beneficial to do this with your power supply leads.
-- Running GUI ...
-  . As a first step, we recommend that you click “Quick input setup…”
-  . The easiest way to set the “Current offset calibration” setting is to connect power 
-    to VIN, make sure the motor is stopped, and then click the “Measure” button to 
-    measure the offset and automatically change the setting.
-- Brake duration is the time, in milliseconds, that the motor controller will spend 
-  braking the motor (current speed = 0) before allowing the current speed to change 
-  signs. The forward brake duration is the braking time required before switching from 
-  forward to reverse (from positive to negative speeds). The reverse brake duration is 
-  the braking time required before switching from reverse to forward (from
-  negative to positive speeds).
-
-----------------
---- commands ---
-----------------
-
-exit safe start
-   0x83
-
-motor forward  0x85 speedbyte1  speedbyte2
-  speed is 0 - 3200
-    byte 1  low 5 bits          
-    byte 2  upper 7 bits
-    example: 0 100  is full speed
-
-motor reverse  0x86
-
-motor brake, causes immedeate brake or coast, ignoring deccel limits
-   0x92 0x00   coast
-   0x92 0x20   brake
-
-get variable
-  0xa1  <variable_id>     RESPONSE:   lowbyte, highbyte
-       (see section 6.4)
-
-    value = variable_low_byte + 256 * variable_high_byte
-
-    If the variable type is signed and the above result is greater than 32767, you will need to subtract
-    65536 from the result to obtain the correct, signed value. Alternatively, if it is supported by the
-    language you are using, you can cast the result to a signed 16-bit data type.
-
-    0   error status                        (errors that are currently stopping the motor)
-    1   errors occurred since last cleared  (reading clears)
-    2   serial errors occurred
-    3   limit status                        (conditions limitting the motor ctlr)
-  127   source of last reset
-
-   20  target speed
-   21  current speed
-   22  breake amunt
-   23  input voltage
-   24 temp A
-   25 temp B
-   27 baud rate
-   28,29  uptime low, high    (ms, 65536 ms)
-
-   30 max speed forwared
-   31 max accel forward
-   32 max decel forward
-   33 brake duration forwared (when transitioning from forward to reverse)
-   34 starting speed forward
-
-   36 max speed reverse
-   37 max accel reverse
-   38 max decel reverse
-   39 brake duration reverse (when transitioning from reverse to forward)
-   40 starting speed reverse
-
-   42 current limit  (section 5.2, internal units)
-   43 raw current   (section 5.2, internal units)
-   44 current  mA
-   45 current limitting consecutive count  number of consecutinve 20 ms periods when current limit is active
-   46 current limitting occurence count  number of consecutinve 20 ms periods when current limit is active
-                                         since last cleared
-
-set motor limit
-    0xa2   limitID  byte1  byte2     RESPONSE   response_code_byte
-      (see secton 6.4)
-
-       the first of which (limit byte 1) contains the
-       low seven bits of the value and the second 
-         (limit byte 2) contains the high seven bits.
-
-         4 - max speed forwared   0-3200
-         5 - max accel forward    0-3200 (0=nolimit) = deltaspeed per update period
-         6 - max decel forward    0-3200 (0=nolimit) = deltaspeed per update period
-         7 - brake dur forward    0-16384  units=4ms   (note: get variable units is 1ms)
-         8 - max speed forwared   0-3200
-         9 - max accel forward    0-3200 (0=nolimit) = deltaspeed per update period
-         10- max decel forward    0-3200 (0=nolimit) = deltaspeed per update period
-         11- brake dur forward    0-16384  units=4ms   (note: get variable units is 1ms)
-
-       response code
-         0 - okay
-         1 - unable to set forwared limit
-         2 - unable to set reverse limit
-         3 - unable to set forward and reverse limit
-
-set current limit
-  0x91  byte1  byte2     see section 5.2
-     these bytes are 7 bit values
-
-get firmware version
-   0xc1   respone  bytes 1-4    
-     product-id low byte
-     product-id high byte
-     minor fw version BCD
-     major fw version  BCD
-
-stop motor : target_speed=0, observes decel limits, safe_start_violation=true
-   0xe0
-
-===========================
-QUADRATURE ENCODER
+TITLE: SENSORS - QUADRATURE ENCODER
 ===========================
 
 https://cdn.sparkfun.com/datasheets/Robotics/How%20to%20use%20a%20quadrature%20encoder.pdf
 
 ===========================
-GIT TIPS
-===========================
-
-Git Tags
- - git tag                          : lists available tags
- - git tag -a v1.0 -m 'version 1.0' : create annotated tag
- - git tag -a v1.0 9fceb02          : tagging an existing commit
- - git push origin --tags           : tags are not pushed by default
- - git checkout -b ver1.0 v1.0      : create a branch at a tag
- - git show v1.0                    : show the tag and associated commit
-
-How to list tracked files
- - git ls-tree -r master --name-only
-
-Create a private repo
-- On server system, create bare repository:
-    cd ~/proj/private_git_repos
-    mkdir $name.git
-    cd $name.git
-    git init --bare
-
-- On client, populate the directory and push
-    cd ~/proj
-    mkdir $name
-    cd $name    
-    git init
-    git add *
-    git commit -m "initial commit"
-    git remote add origin haid@home:proj/private_git_repos/$name.git
-    git push -u origin master
-
-===========================
-RPI - INSTALL
-===========================
-
-Download OS 
-- https://www.raspberrypi.org/software/operating-systems/
-- Raspberry Pi OS Lite
-    Release date: January 11th 2021
-    Kernel version: 5.4
-    Size: 438MB
-    Show SHA256 file integrity hash: d49d6fab1b8e533f7efc40416e98ec16019b9c034bc89c59b83d0921c2aefeef
-
-Use dd to copy the .img file to micro-sd card
-
-Run rasp-config to set:
-- system options -> wireless lan
-- system options -> hostname
-- interfaces     -> ssh enable
-- localization   -> TZ America, New York
-
-Reboot, login, 
-- confirm IP address is set on wlan0
-- make the IP address static in router settings
-- add IP address to /etc/hosts on home computer
-    192.168.1.145    robot-ctlr
-    192.168.1.44     robot-intfc
-
-Upgrade:
-- apt update
-- apt upgrade
-- reboot
-
-configure system
-- passwd    # change the passwd of the 'pi' user
-- adduser haid
-- EDITOR=vi visudo
-       haid    ALL=(ALL) NOPASSWD: ALL
-- apt install git vim cscope ctags apt-file libreadline-dev tkcvs raspberrypi-kernel-headers
-- OPTIONAL: apt install evince eog
-- apt-file update
-
-configure my account
-- on home
-    cd ~/.ssh
-    host=robot-ctlr
-    ssh $host mkdir .ssh
-    scp id_rsa.pub $host:.ssh/authorized_keys
-    scp config id_rsa id_rsa.pub  $host:.ssh
-- on rpi ...
-  * add the following to .bashrc
-        # HAID ADDITIONS
-        ulimit -c unlimited
-        alias bashrc='source ~/.bashrc'
-        alias profile='source ~/.profile'
-        alias ls='ls -l --color=always --group-directories-first --human-readable'
-        alias cscope='/usr/bin/cscope -d'
-        alias cscope_init='rm -f cscope.out tags; /usr/bin/cscope -bR; ctags -R'
-        alias pr='cd ~/proj/proj_robot'
-        alias pdbg='cd ~/proj/proj_dbg'
-        HISTCONTROL=""
-        export EDITOR=vim
-        export GIT_EXTERNAL_DIFF=~/bin/git_external_diff
-  * .vimrc
-        source /usr/share/vim/vim81/defaults.vim
-        " tabs
-        set expandtab
-        set tabstop=8
-        set softtabstop=4
-        set shiftwidth=4
-        " enable copy and paste out of vim
-        set mouse=r
-        " disable autoinent
-        set nocindent
-        set nosmartindent
-        set noautoindent
-        set indentexpr=
-        filetype indent off
-        filetype plugin indent off
-        " highlight search
-        set hlsearch
-        " disable show next match while entering a search
-        set noincsearch
-  * make git directories
-        mkdir proj
-        cd proj
-        git clone haid@home:proj/private_git_repos/proj_dbg.git
-        git clone git@github.com:sthaid/proj_robot.git
-  * build and install dbg
-  * bin/run_dbg
-        #!/bin/bash
-        sudo ~/proj/proj_dbg/dbg/dbg -r ~/proj/proj_dbg/dbg/funcs
-  * bin/spellcheck
-        #!/bin/bash
-        if [ $# -eq 0 ]; then
-          echo "error filename expected"
-          exit
-        fi
-        hunspell -d /en_US -l $1 | sort --unique
-  * bin/git_external_diff 
-        #!/bin/bash
-        tkdiff $2 $PWD/$5 > /dev/null | cat
-  * configure git    
-        git config --global user.name "Steven Haid"
-        git config --global user.email stevenhaid@gmail.com
-        git config -l
-
-===========================
-RPI - GPIO
-===========================
-
-Overview of GPIO
-  https://roboticsbackend.com/raspberry-pi-3-pins/#:~:text=The%20Raspberry%20Pi%204%20board,guide%20applies%20to%20both%20versions.
-
-WiringPi
-  http://wiringpi.com/reference/
-
-3.3v for gpio input pins is required, do not exceed
-- can use voltage divider to reduce 5V to 3.3V
-  . https://www.raspberrypi.org/forums/viewtopic.php?t=209958
-  . suggests 10K + 20K,  for low frequency signals
-
-The operating voltage of the GPIO pins is 3.3v with a maximum current draw of 16mA. 
-This means that we can safely power one or two LEDs (Light Emitting Diodes) from a 
-single GPIO pin, via a resistor.
-  - https://www.raspberrypi.org/forums/viewtopic.php?t=151871
-  - 16 mA max per pin
-  - 100 mA max total
-
-5v Power
-  - The 5v power pins are connected directly to the Pi's power input and will capably 
-    provide the full current of your mains adaptor, less that used by the Pi itself.
-  - With a decent power supply, such as the official 3A adapter on the Pi 4, you can 
-    expect to pull about 1A to 2A.
-
-===========================
-RPI - I2C
+TITLE: SENSORS - I2C IMPLEMENTATION
 ===========================
 
 References:
@@ -815,8 +520,424 @@ DSD TECH 2 PCS IIC OLED Display 0.91 Inch for Arduino ARM
 
 - - - - - - - - - - - - - - - - - - - - - 
 
+Grove - IMU 10DOF v2.0
+
+Reference:
+- https://www.seeedstudio.com/Grove-IMU-10DOF-v2-0.html
+
+What is MPU-9250?
+- The MPU-9250 is a 9-axis MEMS sensor from InvenSense®. It’s Arduino compatible, 
+  making motion-tracking measurements simple. Compatibility aside, it’s a high 
+  performing device with low power consumption and a significantly smaller form 
+  factor as compared to its previous successor MPU-9150. With the perfect combination 
+  of MPU-9250 and BMP280, the Grove IMU 10DOF can provide in total 10 axes of data 
+  to you, allows you to build mobile projects such as smartphone, wearable devices, 
+  Quadrotor, you can even build a joystick controller like PSP and Xbox on your own.
+
+What is IMU? 
+- IMU stands for Inertial Measurement Unit is defined as a 9-axis sensor that 
+  measures orientation, velocity, and gravitational forces by combining Accelerometer, 
+  Gyroscope, and Magnetometer into one. IMUs typically come in large packages, 
+  but with recent developments like MEMS technology, they are now more commonly 
+  seen as miniaturized sensors designed for easy integration with Arduino or 
+  other microcontrollers.
+
+Grove-IMU 10DOF v2.0 is a upgrade version of Grove-IMU-10DOF， which replace 
+BMP180 with BMP280. As the successor to the widely adopted BMP180, the BMP280 
+delivers high performance in all applications that require precise pressure measurement.
+
+Grove-IMU 10DOF v2.0
+- MPU-9250   9 axis IMU  (accel, gyro, magnetometer)
+- BMP280     temperature and pressure
+
+I2C Addresses
+- 04 Seeed HAT ADC
+- 18 Grove - I2C High Accuracy Temperature Sensor - MCP9808
+- 3c DSD TECH 2 PCS IIC OLED Display 0.91 Inch for Arduino ARM
+- 76 Grove - Temperature, Humidity, Pressure and Gas Sensor for Arduino - BME680
+- 68  MPU9250 Grove IMU 10DOF
+- 0C  MPU9250 Grove IMU 10DOF, when Magnetometer is enabled
+- 77  BMP280  Grove IMU 10DOF
+
+References
+  https://www.seeedstudio.com/Grove-IMU-10DOF-v2-0.html
+  - Voltage 5 or 3.3
+  - Working Current 6 ma
+  https://wiki.seeedstudio.com/Grove-IMU_10DOF_v2.0/
+  - Built on MPU-9250 and BMP180
+  - Upgrade BMP180 sensor to BMP280 from BOSCH   <== ver 2
+  Resources Downloads  
+  - Grove_IMU_10DOF_v2.0-master.zip
+  - BMP280 - https://files.seeedstudio.com/wiki/Grove-IMU_10DOF_v2.0/res/BMP280-Datasheet.pdf
+  - MPU-9250  https://files.seeedstudio.com/wiki/Grove-IMU_10DOF/res/MPU-9250A_Product_Specification.pdf
+  - MPU-9250 Register Map  https://files.seeedstudio.com/wiki/Grove-IMU_9DOF_v2.0/res/MPU-9250A_Reg_Map.pdf
+  Github repo:
+  - git clone https://github.com/Seeed-Studio/Grove_IMU_10DOF_v2.0
+      this is probably identical to the Grove_IMU_10DOF_v2.0-master.zip referenced above
+  The MPU9250 uses I2Cdev library, info found here
+    https://github.com/jrowberg/i2cdevlib
+    https://github.com/jrowberg/i2cdevlib/tree/master/RaspberryPi_bcm2835/I2Cdev
+    https://github.com/jrowberg/i2cdevlib/blob/master/RaspberryPi_bcm2835/I2Cdev/I2Cdev.cpp
+    http://www.airspayce.com/mikem/bcm2835/index.html
+    http://www.airspayce.com/mikem/bcm2835/group__i2c.html#gabb58ad603bf1ebb4eac2d439820809be
+  The BMP280 uses Wire.h
+
 ===========================
-RPI - REAL TIME PERFORMANCE TIPS
+TITLE: SENSORS - NON I2C
+===========================
+
+Pololu 38 kHz IR Proximity Sensor, Fixed Gain, High Brightness
+- https://www.pololu.com/product/2578
+- 16 mA at 5V
+- sensor TSSP77038
+- enable pin turns on the LED
+- range up to 24 nch
+- connectors
+  - gnd
+  - Vdd  3.3-5v (<5v decreases LED brightness)
+  - out
+  - enable
+- red led on emitter side, ties on when in proximity
+- trimmer pot on receiver side adjusts ir emitter led frequency
+- The sensing angle is relatively wide in both directions. The high-brightness 
+  version in particular might require extra consideration when mounting to prevent 
+  seeing surfaces parallel to the sensor’s line of sight. 
+  For many applications, additional shielding can be used to block undesirable 
+  sensing paths, such as reflections off of the ground, or to reduce interference 
+  from ambient lighting. When applying shielding, keep in mind that reflection 
+  off the shielding itself can cause undesired activation of the sensor.
+- I guess the emitter side should be UP/DOWN?
+
+===========================
+TITLE: MOTOR_CTLR - POLOLU SIMPLE MOTOR CONTROLLER
+===========================
+
+https://www.pololu.com/product/1362
+
+User's Guide
+  html:  https://www.pololu.com/docs/0J77
+  pdf:   https://www.pololu.com/docs/pdf/0J77/simple_motor_controller_g2.pdf
+
+Configurator runs only on Windows
+   see section:  3.1. Installing Windows drivers and software
+   cmdline tool is:   smcg2cmd.exe
+
+install windoes drivers and software,  sect 3.1
+  The SMC G2’s native USB interface implements Microsoft OS 2.0 Descriptors, 
+  so it will work on Windows 8.1 or later without needing any drivers. 
+  The USB serial ports will work on Windows 10 or later without drivers.
+
+The Simple Motor Control Center G2 is a graphical user interface (GUI) for configuring the
+controller, viewing its status, and controlling it manually. You can find the configuration 
+utility in your Start Menu by searching for it or looking in the Pololu folder.
+
+The Simple Motor Controller G2 Command-line Utility (smcg2cmd) is a command-line utility
+that can do most of what the GUI can do, and more. You can open a Command Prompt and
+type smcg2cmd with no arguments to see a summary of its options.
+
+Tips:
+- Make your motor leads as thick and as short as possible, and 
+- Twist them around each other. 
+- It is also beneficial to do this with your power supply leads.
+- Running GUI ...
+  . As a first step, we recommend that you click “Quick input setup…”
+  . The easiest way to set the “Current offset calibration” setting is to connect power 
+    to VIN, make sure the motor is stopped, and then click the “Measure” button to 
+    measure the offset and automatically change the setting.
+- Brake duration is the time, in milliseconds, that the motor controller will spend 
+  braking the motor (current speed = 0) before allowing the current speed to change 
+  signs. The forward brake duration is the braking time required before switching from 
+  forward to reverse (from positive to negative speeds). The reverse brake duration is 
+  the braking time required before switching from reverse to forward (from
+  negative to positive speeds).
+
+----------------
+--- commands ---
+----------------
+
+exit safe start
+   0x83
+
+motor forward  0x85 speedbyte1  speedbyte2
+  speed is 0 - 3200
+    byte 1  low 5 bits          
+    byte 2  upper 7 bits
+    example: 0 100  is full speed
+
+motor reverse  0x86
+
+motor brake, causes immedeate brake or coast, ignoring deccel limits
+   0x92 0x00   coast
+   0x92 0x20   brake
+
+get variable
+  0xa1  <variable_id>     RESPONSE:   lowbyte, highbyte
+       (see section 6.4)
+
+    value = variable_low_byte + 256 * variable_high_byte
+
+    If the variable type is signed and the above result is greater than 32767, you will need to subtract
+    65536 from the result to obtain the correct, signed value. Alternatively, if it is supported by the
+    language you are using, you can cast the result to a signed 16-bit data type.
+
+    0   error status                        (errors that are currently stopping the motor)
+    1   errors occurred since last cleared  (reading clears)
+    2   serial errors occurred
+    3   limit status                        (conditions limitting the motor ctlr)
+  127   source of last reset
+
+   20  target speed
+   21  current speed
+   22  breake amunt
+   23  input voltage
+   24 temp A
+   25 temp B
+   27 baud rate
+   28,29  uptime low, high    (ms, 65536 ms)
+
+   30 max speed forwared
+   31 max accel forward
+   32 max decel forward
+   33 brake duration forwared (when transitioning from forward to reverse)
+   34 starting speed forward
+
+   36 max speed reverse
+   37 max accel reverse
+   38 max decel reverse
+   39 brake duration reverse (when transitioning from reverse to forward)
+   40 starting speed reverse
+
+   42 current limit  (section 5.2, internal units)
+   43 raw current   (section 5.2, internal units)
+   44 current  mA
+   45 current limitting consecutive count  number of consecutinve 20 ms periods when current limit is active
+   46 current limitting occurence count  number of consecutinve 20 ms periods when current limit is active
+                                         since last cleared
+
+set motor limit
+    0xa2   limitID  byte1  byte2     RESPONSE   response_code_byte
+      (see secton 6.4)
+
+       the first of which (limit byte 1) contains the
+       low seven bits of the value and the second 
+         (limit byte 2) contains the high seven bits.
+
+         4 - max speed forwared   0-3200
+         5 - max accel forward    0-3200 (0=nolimit) = deltaspeed per update period
+         6 - max decel forward    0-3200 (0=nolimit) = deltaspeed per update period
+         7 - brake dur forward    0-16384  units=4ms   (note: get variable units is 1ms)
+         8 - max speed forwared   0-3200
+         9 - max accel forward    0-3200 (0=nolimit) = deltaspeed per update period
+         10- max decel forward    0-3200 (0=nolimit) = deltaspeed per update period
+         11- brake dur forward    0-16384  units=4ms   (note: get variable units is 1ms)
+
+       response code
+         0 - okay
+         1 - unable to set forwared limit
+         2 - unable to set reverse limit
+         3 - unable to set forward and reverse limit
+
+set current limit
+  0x91  byte1  byte2     see section 5.2
+     these bytes are 7 bit values
+
+get firmware version
+   0xc1   respone  bytes 1-4    
+     product-id low byte
+     product-id high byte
+     minor fw version BCD
+     major fw version  BCD
+
+stop motor : target_speed=0, observes decel limits, safe_start_violation=true
+   0xe0
+
+===========================
+TITLE: MOTOR_CTLR - MOTOR SETUP
+===========================
+
+Wires
+-----
+- Red, Black    : Power
+- Green         : Encoder Gnd
+- Blue          : Encoder Vcc 3.5 - 20 V
+- Yellow, White : Encoder Output      THESE WILL PROBABLY NEED A VOLTAGE DIVIDER
+
+Settings
+--------
+Input 
+- Enable CRC commands
+- Enable CRC responses
+
+Motor
+- Max Speed    :  3200
+- Start Speed  :  0
+- Max Accel    :  10       = 0 to full speed in 320 ms
+- Max Deccel   :  10
+- Brake Dur    :  1000  ms = 1sec
+
+- Current      :  5.0
+- Measure Current Offset Cal with Motor Voltage Off
+
+Advanced
+- Low Vin Shutoff    9.5
+- Low Vin Startup   10.5
+- High Vin Shutoff  15
+- Learn with Vin set to approx 12V
+
+===========================
+TITLE: RPI - HARDWARE INFO
+===========================
+
+https://www.raspberrypi.org/documentation/hardware/raspberrypi/bcm2711/README.md
+- See the following documentation sections for information about the previous Raspberry Pi chips:
+    Raspberry Pi 4 Model B  BCM2711
+    Raspberry Pi 3+ chip BCM2837B0
+    Raspberry Pi 3 chip BCM2837
+    Raspberry Pi 2 chip BCM2836
+    Raspberry Pi 1 chip BCM2835
+
+===========================
+TITLE: RPI - INSTALL
+===========================
+
+Download OS 
+- https://www.raspberrypi.org/software/operating-systems/
+- Raspberry Pi OS Lite
+    Release date: January 11th 2021
+    Kernel version: 5.4
+    Size: 438MB
+    Show SHA256 file integrity hash: d49d6fab1b8e533f7efc40416e98ec16019b9c034bc89c59b83d0921c2aefeef
+
+Use dd to copy the .img file to micro-sd card
+
+Run rasp-config to set:
+- system options -> wireless lan
+- system options -> hostname
+- interfaces     -> ssh enable
+- localization   -> TZ America, New York
+
+Reboot, login, 
+- confirm IP address is set on wlan0
+- make the IP address static in router settings
+- add IP address to /etc/hosts on home computer
+    192.168.1.145    robot-ctlr
+    192.168.1.44     robot-intfc
+
+Upgrade:
+- apt update
+- apt upgrade
+- reboot
+
+configure system
+- passwd    # change the passwd of the 'pi' user
+- adduser haid
+- EDITOR=vi visudo
+       haid    ALL=(ALL) NOPASSWD: ALL
+- apt install git vim cscope ctags apt-file libreadline-dev tkcvs raspberrypi-kernel-headers
+- OPTIONAL: apt install evince eog
+- apt-file update
+
+configure my account
+- on home
+    cd ~/.ssh
+    host=robot-ctlr
+    ssh $host mkdir .ssh
+    scp id_rsa.pub $host:.ssh/authorized_keys
+    scp config id_rsa id_rsa.pub  $host:.ssh
+- on rpi ...
+  * add the following to .bashrc
+        # HAID ADDITIONS
+        ulimit -c unlimited
+        alias bashrc='source ~/.bashrc'
+        alias profile='source ~/.profile'
+        alias ls='ls -l --color=always --group-directories-first --human-readable'
+        alias cscope='/usr/bin/cscope -d'
+        alias cscope_init='rm -f cscope.out tags; /usr/bin/cscope -bR; ctags -R'
+        alias pr='cd ~/proj/proj_robot'
+        alias pdbg='cd ~/proj/proj_dbg'
+        HISTCONTROL=""
+        export EDITOR=vim
+        export GIT_EXTERNAL_DIFF=~/bin/git_external_diff
+  * .vimrc
+        source /usr/share/vim/vim81/defaults.vim
+        " tabs
+        set expandtab
+        set tabstop=8
+        set softtabstop=4
+        set shiftwidth=4
+        " enable copy and paste out of vim
+        set mouse=r
+        " disable autoinent
+        set nocindent
+        set nosmartindent
+        set noautoindent
+        set indentexpr=
+        filetype indent off
+        filetype plugin indent off
+        " highlight search
+        set hlsearch
+        " disable show next match while entering a search
+        set noincsearch
+  * make git directories
+        mkdir proj
+        cd proj
+        git clone haid@home:proj/private_git_repos/proj_dbg.git
+        git clone git@github.com:sthaid/proj_robot.git
+  * build and install dbg
+  * bin/run_dbg
+        #!/bin/bash
+        sudo ~/proj/proj_dbg/dbg/dbg -r ~/proj/proj_dbg/dbg/funcs
+  * bin/spellcheck
+        #!/bin/bash
+        if [ $# -eq 0 ]; then
+          echo "error filename expected"
+          exit
+        fi
+        hunspell -d /en_US -l $1 | sort --unique
+  * bin/git_external_diff 
+        #!/bin/bash
+        tkdiff $2 $PWD/$5 > /dev/null | cat
+  * configure git    
+        git config --global user.name "Steven Haid"
+        git config --global user.email stevenhaid@gmail.com
+        git config -l
+
+===========================
+TITLE: RPI - GPIO
+===========================
+
+Overview of GPIO
+  https://roboticsbackend.com/raspberry-pi-3-pins/#:~:text=The%20Raspberry%20Pi%204%20board,guide%20applies%20to%20both%20versions.
+
+WiringPi
+  http://wiringpi.com/reference/
+
+3.3v for gpio input pins is required, do not exceed
+- can use voltage divider to reduce 5V to 3.3V
+  . https://www.raspberrypi.org/forums/viewtopic.php?t=209958
+  . suggests 10K + 20K,  for low frequency signals
+
+The operating voltage of the GPIO pins is 3.3v with a maximum current draw of 16mA. 
+This means that we can safely power one or two LEDs (Light Emitting Diodes) from a 
+single GPIO pin, via a resistor.
+  - https://www.raspberrypi.org/forums/viewtopic.php?t=151871
+  - 16 mA max per pin
+  - 100 mA max total
+
+5v Power
+  - The 5v power pins are connected directly to the Pi's power input and will capably 
+    provide the full current of your mains adaptor, less that used by the Pi itself.
+  - With a decent power supply, such as the official 3A adapter on the Pi 4, you can 
+    expect to pull about 1A to 2A.
+
+voltage dividers
+- https://www.raspberrypi.org/forums/viewtopic.php?t=209958
+             suggests 10k and 20k, for low frequency signals
+   VIL=0.8V means that if the output is Low it will be <= 0.8V.
+   VIL=1.3V means that if the output is High it will be >= 1.3V
+
+===========================
+TITLE: RPI - REAL TIME PERFORMANCE TIPS
 ===========================
 
 https://www.raspberrypi.org/forums/viewtopic.php?t=228727
@@ -906,7 +1027,7 @@ verify cpus isolated
   cat /sys/devices/system/cpu/present
 
 ===========================
-RPI - GENERAL TIPS
+TITLE: RPI - GENERAL TIPS
 ===========================
 
 apt examples
@@ -944,34 +1065,59 @@ c beautifier
     -nut   Use spaces instead of tabs
 
 ===========================
-MOTOR SETUP
+TITLE: RPI - HAT CONNECTIONS
 ===========================
 
-Wires
------
-- Red, Black    : Power
-- Green         : Encoder Gnd
-- Blue          : Encoder Vcc 3.5 - 20 V
-- Yellow, White : Encoder Output      THESE WILL PROBABLY NEED A VOLTAGE DIVIDER
+test config gpio connections
+- relay    5
+- encoder  16, 17
 
-Settings
---------
-Input 
-- Enable CRC commands
-- Enable CRC responses
+test config Seeed HAT Analog connections
+- analog   0
 
-Motor
-- Max Speed    :  3200
-- Start Speed  :  0
-- Max Accel    :  10       = 0 to full speed in 320 ms
-- Max Deccel   :  10
-- Brake Dur    :  1000  ms = 1sec
+===========================
+TITLE: MISC - GIT TIPS
+===========================
 
-- Current      :  5.0
-- Measure Current Offset Cal with Motor Voltage Off
+Git Tags
+ - git tag                          : lists available tags
+ - git tag -a v1.0 -m 'version 1.0' : create annotated tag
+ - git tag -a v1.0 9fceb02          : tagging an existing commit
+ - git push origin --tags           : tags are not pushed by default
+ - git checkout -b ver1.0 v1.0      : create a branch at a tag
+ - git show v1.0                    : show the tag and associated commit
 
-Advanced
-- Low Vin Shutoff    9.5
-- Low Vin Startup   10.5
-- High Vin Shutoff  15
-- Learn with Vin set to approx 12V
+How to list tracked files
+ - git ls-tree -r master --name-only
+
+Create a private repo
+- On server system, create bare repository:
+    cd ~/proj/private_git_repos
+    mkdir $name.git
+    cd $name.git
+    git init --bare
+
+- On client, populate the directory and push
+    cd ~/proj
+    mkdir $name
+    cd $name    
+    git init
+    git add *
+    git commit -m "initial commit"
+    git remote add origin haid@home:proj/private_git_repos/$name.git
+    git push -u origin master
+
+===========================
+TITLE: MISC - WIRING SPECS
+===========================
+
+Ampacity
+  24 AWG   2 amp
+  22       3 amp
+  20       5 amp
+  18       10
+  14       15
+
+Connector Pitch
+  2.54 mm  rpi hdr, and most others, except
+  2.00 mm  grove connector
