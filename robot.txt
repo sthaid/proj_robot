@@ -2,16 +2,12 @@
 TITLE: INTRO - TODO
 ===========================
 
-clean up bookmarks
-- add book marks needed for OLED u8g2, DSDTECTH and AMAZON
-
 put max_cpu back to 4  (delete it)
 
 bring over robot.txt to new repo
 
-i2c test pgm, 
-- cleanup
-- detect acceleration
+more misc
+- gpio, time, etc
 
 more devices
 - relay
@@ -19,10 +15,11 @@ more devices
 - encoder
 - motor_ctlr
 
-more misc
-- gpio, time, etc
+i2c test pgm, 
+- cleanup
+- detect acceleration
 
-upper levels of the software
+upper levels of the software, design
 - real time thread for gpio, to feed proximity and encoders
 
 thread for i2c, 
@@ -35,8 +32,6 @@ alarm conditions to shut down motors
 - high motor current
 - wheels turning too slowly
 - proximity alert
-
-check motor ctlr config for why they don't shut down when test pgm exits
 
 mounting hardware details
 - including proximity sensor which doesn't have holes
@@ -783,6 +778,9 @@ Advanced
 - Low Vin Startup   10.5
 - High Vin Shutoff  15
 - Learn with Vin set to approx 12V
+
+Advanced / Miscellaneous
+- Command Timeout  2.0 secs
 
 ===========================
 TITLE: RPI - HARDWARE INFO
